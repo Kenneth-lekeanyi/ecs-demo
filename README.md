@@ -27,4 +27,6 @@
      g) Cluster setup manual and automated
 
 - 2) ECS LoadBalancing and Auto-scaling
-  3) Setup CICD Pipeline for AWS-ECS deployments for both Rollout and Blue/Green deployment
+  3) Setup CICD Pipeline for AWS-ECS deployments for both Rollout and Blue/Green deployment.
+
+# Section One: AWS ECS Basics
