@@ -31,3 +31,67 @@
   - **CLUSTER ----------- - nodegroup-------------- - Pods--------- - containers/images**
 
 # Section One: THE CORE CONCEPT OF ECS
+-
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+- **SOME EXPLANATION HERE**
+- 
+There are 4 major core concepts of ECS which are:
+1)	container drfinition
+2)	task definition
+3)	service
+4)	cluster (which we are discuseed more on it)
+Let's get started with a quick demo on ECS so as to understand the flow of ECS and also understand these major core concepts above.
+•	So go to your AWS console.
+-	In the search bar type is ECS
+-	then click on “get started”
+you will realize that we are starting with the internal which is container definition and the second which is task definition.
+1)	Under container definition
+-	choose the image for your container
+•	so choose nginx and 
+•	then click on “edit” so see what we have in the container definition.
+So in the container we will have the following
+-	the container name:nginx
+-	the image: nginx:latest
+-	If it is a private repository (it is a private doctor Bob), we will check this box and then provide the secret manager ARN for the credentials or the name
+-	Check the box if it is not a private repository
+-	memory limit (MIB) soft limit s12
+-	port mappings
+-	story or volume
+-	log groups
+-	click on advanced container configuration to enter all the information when you are creating and defining a container.
+•	When we input all the information to define and create a Container, this container will then become part of task.
+2)	Under tax definition
+•	go under task definition and click on “edit”
+-	Task definition name
+-	network mode: aws VPC
+-	task execution role:
+-	Capabilities: FARGATE (we already know about ECS fargate cluster)
+-	fask size
+•	fask or container memory size: 0.5GB
+•	Container or task CPU utilization 0.25GB of CPU
+•	We can then add some more definition like auto scaling when doing the actual demo
+•	Click on “Next”
+3)	Define your service:
+-	service name: nginx-service
+-	number of desired tasks
+-	load balancer type: application load balancer
+click on edit to define more resources under service like 5G
+click on “next”
+4)	configure your cluster
+-	click on “next”
+-	click again on “next”
+-	then click on “create”
+When you now go to cloud formation you will see ECS container service creation in progress.
+Under this ECS now, you will see resources that are being created.
+Click on “view service” to see the details
+since we are done with this cluster go ahead and delete it
+to delete it:
+under the Amazon ECS console click on cluster
+-	locate default and click on it
+-	then click on “delete cluster”
+-	type “delete me” define lutting delete
+---------------------------------------------------------------------------------------------------------------------------------------------
+- **END OF EXPLANATION**
+-	
+a)	Set up required IAM roles
+
