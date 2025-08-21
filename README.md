@@ -30,4 +30,4 @@
   3) Setup CICD Pipeline for AWS-ECS deployments for both Rollout and Blue/Green deployment.
   - **CLUSTER ----------- - nodegroup-------------- - Pods--------- - containers/images**
 
-# Section One: AWS ECS Basics
+# Section One: THE CORE CONCEPT OF ECS
