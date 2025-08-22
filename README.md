@@ -113,55 +113,133 @@ For the roles, we have to create 4 Roles. As we have already created the first R
 1)	**ecs-demo-ecs-role**.  ***(This role is for ECS cluster to manage AWS resources)***
 2)	**ecs-demo-task-execution-role**. ***(This role is for task execution to pull images from ECR and push logs to cloudmatch as well)***
 3)	**ecs-demo-asg-role**. ***(This auto scaling role is to verify the instance frequently and setup auto scaling as required). This role will give the flexibility from instances to interact with autoscaling group***.
-
+- "Challenge: if you create a Role, and dont attach a permission to it at creation, EC2 WILL BE CREATED BUT CREATION PROCESS WILL JUST BE IDLING AND NOT GO THROUGH"
+- 
 - So download the codebase from this repository; https://github.com/Kenneth-lekeanyi/ecs-demo
 
-When you are in this GitHub repository,
-clone the repo by checking the “code”
--	either you clone it under https://or you click down on “download zip”. 
--	It will take the ecs-demo-cluster To your download folder. You can now see the same folder in your local machine under your download having 
-App
-Infra
-Dockerfile
-README
--	now open your text editor ( VS code) and find this ecs-demo-master in V.S code to see the
-app
-infra
-Dockerfile
-README
-Now inside this our ecs-demo folder, we have three folders: app,infra and Dockerfile
-•	So we have just downloaded our codebase and kept it aside.
-The VPC.yml is very clear and precise
-a)	Now set up the VPC. (We shall see cloud formation scripts) to set up the VPC.
-We need to set up the VPC so that ECS cluster can use the VPC network for the following demos.
-In order to create the VPC and subnets flow, let's use the predefined cloud formation template which we have already created.
-So in order to do this,
--	Go to AWS account
--	go to cloud formation console
--	click on “create stack"
-select (with new resources standard)
--	prepare templates
-Template is ready
--	Specify template
-•	upload a template file
-•	then click on “choose file”
-•	Then click on “next”
--	Stack name: ecs-demo-network
--	Environmentname: ecs-demo
-•	Then click on “next”
-•	click on “create stack”
-now our VPC is set up.
-Let's proceed to the next step which is to setup ECS cluster in both EC2 and fargate base types.
-b)	Set up the ECS cluster for both EC2 type and fargate.
- set up both ECS, EC2 and fargate clusters on AWS console to understand the flow.
-1)	ECS, EC2 based cluster setup
-•	Create 1 keypad in the AWS EC2 console with the name as ecs-demo so that we can use It in future if required when loading EC2 based ECS cluster.
-•	Go to EC2 console
--	locate and click on keypair
+- When you are in this GitHub repository in the due GitHub Account,
+- clone the repo by clicking on the green botton “Code”
+  - Either you clone it under HTTPS or you click on “Download zip”. When you click on "Download zip", it will take the **ecs-demo-master** to your Download folder in your local. You can now see the same folder in your local machine under your download having 
+  - app
+  - infra
+  - Dockerfile
+  - README.md
+-	Now, open your text editor ( V.S code) and find this **ecs-demo-master** in V.S code to see the
+  - app
+  - infra
+  - Dockerfile
+  - README.md
+- Now, inside this our "ecs-demo folder", we have three folders: app,infra and Dockerfile
+  - **app:** ***{This is basically the Application code folder that is coming from Developers and we are going to deploy it. This Application Folder consist of both '**Contactus.html***' and '**index.html**'
+  - **infra:** ***{This is where we have our CloudFormation.yml scripts such as **"ecs-ec2.yml"**, **"ecs-fargate.yml"**, **"iam.yml"**, and **"vpc.yml"**. These are the things that we are going to use for our infrastructure}***
+  - **Dockerfile:** ***{This consist of our image that will be used in future.}***
+
+# b)	Now set up the VPC. (We shall see cloud formation scripts) to set up the VPC.
+- We need to set up the VPC so that ECS cluster can use the VPC network for the following demos. This because we need to launch our cluster in a VPC.
+- In order to create the VPC and subnets flow, let's use the predefined CloudFormation template which we have already created.
+- So, in order to do this,
+  - Go to AWS account
+  - go to the CloudFormation console
+  - click on “create stack"
+  - click to select [with new resources (standard)]
+  - prepare templates; click on [Template is ready]
+  - Specify template:
+    - click on [upload a template file] ***{This is because we have our template file in our local folder}***
+    - then click on “choose file” ***{It will take you to either your Downloads or your Documents where you have your ecs-demo-master folder. There, select "Infra", then select "vpc", then click on "open"}***
+- Then click on “next”
+-	Stack name: **ecs-demo-network**
+-	EnvironmentName: **ecs-demo**
+- Then click on “next”
+- Click again on "Next" (we dont have to do anything on Configuration)
+- Then click on “create stack”
+- Now our VPC is set up, and its up and running.
+- 
+- Let's proceed to the next step, which is to setup the ECS cluster for both **EC2-based** and **fargate-based** clusters.
+- Note: For Windows users, if you are using Gitbash, use **.pem** But if you are using putty, select **.ppk** for the keypair.
+
+# c)	Set up the ECS cluster for both EC2-based and Fargate-based cluster.
+ ***{Just Showing us how to Set up both ECS, EC2 and fargate clusters using the AWS console in order to understand the flow.}***
+1)	ECS, EC2-based cluster setup
+- Create 1 keypair in the AWS EC2 console with the name as **ecs-demo**, so that we can use it in future. If required, when launching the EC2 based ECS cluster;
+  - Go to EC2 console
+  - locate and click on keypair. ***{This keypair will also help you to ssh into the instance if there is an issue}***. (We can use an existing keypair, but since we already hardcoded the name of the ecs-demo keypair in the ecs-ec2.yml file, we should just maintain the name as of our keypair as "ecs-demo", or you can go to the ecs-ec2.yml file and change the name of the key under keyname)
+  - Create keypair
+  - keypair name: **ecs-demo**
 -	create keypair
--	keypair name: ecs-demo
--	create keypair
-we are done creating the key pair. Let's now proceed to create the cluster (i.e the ECS, EC2 type cluster.
+- We are done creating the keypair. Let's now proceed to create the cluster (i.e the ECS, EC2-based cluster.
+- 
 2)	Now let's go ahead and create an ECS, EC2 type cluster via AWS console.
+- So,
+-	Go to **Elastic Container Service(ECS console)**
+-	Locate “cluster” on the left and click on it 
+-	Now click on “create cluster”
+   - As you can see here, we have 3 clusters;
+     - Fargate
+     - EC2 Linux
+     - EC2 Windows
+     - So, lets start with EC2 Linux, because our Agenda is to create an EC2 Linux cluster first. ***{Ask your Developer: what is the minimum RAM, Size of EBS, size of CPU, and Instance Type that is needed for this Application}***
+-	So select "EC2 Linux + networking"
+-	Click now on “Next step”
+-	Under "Configure cluster";
+- Cluster name: **ecs-demo-ec2-cluster**
+-	Under Instance configuration
+- Click to select [on-Demand instance]
+-	Under EC2 instance type;
+- click to select [t2.small]
+-	Number of instances: **1**
+-	EC2 AMI ID: **Amazon linux2 Ami** ***{Here, AWS must have combined the EC2 Agent with Docker, that is why you have this AMI ID here. So this EC2 machine is going to run the Docker image which makes it mandatory to have Docker installed. And since this EC2 machine will be having communication back and forth with the ECS Cluster, that is why it has an Agent installed in it too. That is why, it has created an AMI and thesame AMI is used in the EC2 Instance}***
+-	Root EBS volume size: **30**
+-	Keypairs: **ecs-demo**
+- Networking: ***{Since we have created our VPS stark and exported the VPC and two public subnets, you can see this by going to CloudFormation, Click on "stack details", then click on “outputs” to see the VPC ID, so that you will note it and be able to select it under networking.
+-	Now VPC: **select the VPC that you have noted it ID down**
+-	Subnets: **select bioth of the subnets created and imported through output. (i.e 2 subnets)**
+-	Auto assign public IP: **Use subnet setting**
+-	Security Group: **create a new SG**
+-	Security group inbound rules: **CIDR block**: 0.0.0.0./0, ------- **port range:** 80
+-	Cortainer instance IAM role: **ecs-demo-ec2-role**
+-	Click now on "create" to create our clusters.
+- Once the clusters have been created verify the cluster creation by accessing CloudFormation, ECS console and EC2 console.
+- Once all the three are created successfully click on “view cluster” to see the cluster.
+
+- If you click on ECS Instances, you will not see any instance. But if you go to EC2 Console and Instances, you will see that there is a new instance there just created with the name "ECS Instance".
+- Still under ECS Instance in the ECR Console, you will see the Container Instance. So, with this, you know the EC2 Instance that is hosting your containers. As we can at times have multiple containers in one EC2 Instance.
+- On the CloudFormation Console, you will see that, beside the cluster that has been created, there are other resources being created as well such as Auto-scaling group, LB, and SG that are created and attached to the cluster as well.
+
+-Let's now delete the cluster as we are now going to create a new cluster with a fully automated CloudFormation template or script.
+# Deleting the cluster 
+1)	Delete EC2 based ECS cluster By deleting the "ECS-demo-cluster stack" in the CloudFormation console and confirmed the deletion
+-	So go to your ECS console
+-	then click on “delete cluster”
+- this cluster is meant to understand all inputs and what they do manually. Then we can think about automating the very process using CloudFormation, CDK or Trraform.
+- 
+2)	Let's now delete the "ecs-demo-ec2-role" That we created
+-	go to IAM console
+-	select Role
+- search for "ecs-demo-ec2-role"
+- select it
+- then click on "delete".
+
+- 
+# Creation of ECS cluster using Cloud formation Script.
+1)	IAM Stack creation.
+Let's proceed to create all the above created rules but this time around with cloud formation, so as to understand how the flow works with automation.
+a)	Start by creating a required IAM roles by using the cloud formation script.
+So go to cloud formation console
+-	click on “stack”
+-	 click on “create stack”
+Click on “with new resources” (standard)
+-	Prepare template
+Upload a template file
+-	Upload a template file
+click here on choose file
+then click on “open”
+-	click on next
+-	stack name: ecs-demo-iam
+-	environment name: ecs-demo
+-	click on “next”
+-	configure stack options
+Click on “next”
+-	click on “create stack”
+Under the stack you will see all the rules that has been created. On the output you will see the values of the resources that were exported in the script.
 
 
