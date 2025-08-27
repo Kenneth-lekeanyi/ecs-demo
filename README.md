@@ -221,25 +221,63 @@ For the roles, we have to create 4 Roles. As we have already created the first R
 
 - 
 # Creation of ECS cluster using Cloud formation Script.
-1)	IAM Stack creation.
-Let's proceed to create all the above created rules but this time around with cloud formation, so as to understand how the flow works with automation.
-a)	Start by creating a required IAM roles by using the cloud formation script.
-So go to cloud formation console
+# 1)	IAM Stack creation.
+- Let's proceed to create all the above created Roles, but this time around with CloudFormation, so as to understand how the flow works with automation.
+# a)	Start by creating the required IAM Roles by using the CloudFormation script. ***{So that these Roles will be used during the creation of the Cluster}***
+- So, go to the CloudFormation console
 -	click on “stack”
 -	 click on “create stack”
-Click on “with new resources” (standard)
--	Prepare template
-Upload a template file
--	Upload a template file
-click here on choose file
-then click on “open”
--	click on next
--	stack name: ecs-demo-iam
--	environment name: ecs-demo
+- Click on “with new resources” (standard)
+-	Prepare template:
+  - Click to select [Template is ready]
+- Template Source:
+  - Click to select [Upload a template file]
+-	Upload a template file:
+  - click here on [choose file] {It will take you to your folders. Go to Downloads where you have the "ecs-demo" Folder and choose "Infra" then select "iam.yml".
+- Then click on “open”
+-	click on "next"
+-	stack name: **ecs-demo-iam**
+-	environment name: **ecs-demo**
 -	click on “next”
 -	configure stack options
-Click on “next”
+- Click on “next”
+- click to check the box on "Acknowledge"
 -	click on “create stack”
-Under the stack you will see all the rules that has been created. On the output you will see the values of the resources that were exported in the script.
+- Under the stack, you will see all the Roles that has been created. Under [output], you will see the values of the resources that we exported in the script.
+
+- # 2)	Creating the ECS-EC2-based Cluster using CloudFormation.
+- Go to your CloudFormation console
+-	then click on “stack”
+-	click on "create stack”
+- select "with new resources (standard)"
+-	Prepared templates:
+  - Click to select [template is ready]
+-	Specify templates:
+  - Click to select [upload a template file]
+-	Upload a template file:
+  - click here on [choose file] ***{it will take you to the Folder. Go to your Downloads where you have the **ecs-demo**. click on "Infra", then click on "ecs-ec2.yml". then click on "open"
+-	click on “next”
+-	stack name: **ecs-demo-ec2-stack**
+-	Desired capacity: **1**
+-	ECSAMI: **/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image-id**. ***{This AMI is because the cluster is carrying some EC2 wherein, that EC2 has containers in it. So the cluster has Docker, Docker engine and EC2 Agent which helps it to interact with the cluster. That is why it has to generate this AMI}***
+-	Environment name: **ecs-demo**
+-	Instance type: **t2.small**
+-	Max size: **3**
+- Click now on “next”
+- Configure option:
+  - click on “next”
+-	Check the box on [Acknowledge]
+-	click now on “create stack”
+  - It will take some time to create
+    
+-Go now to CloudFormation and see the resources under creation.
+-	Click on [output] to see the cluster that we exported
+-	***{in the Demo, if you see Rollback, go to your resource and click on "Event". it will show you why you are having such a Rollback}***
+-	
+**[Deletion]**
+-	Go to CloudFormation. Select the **ecs-demo-ec2-stack** then click on "delete". {If you say you will only delete the EC2 Instance, because it has an 
+Now let's understand the differences between ec2 based cluster and fargate based cluster by creating fargate cluster using the console and cloud formation script.
+Before that let's first see tax definition and service in ECS, EC2 mode.
+
 
 
