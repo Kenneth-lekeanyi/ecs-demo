@@ -32,7 +32,7 @@
 
 # Section One: THE CORE CONCEPT OF ECS
 
-# ----------------------> EXPLANATION HERE -------------------------------
+# --------------> EXPLANATION HERE ------------------
 - 
 There are 4 major core concepts of ECS which are:
 1)	container drfinition
