@@ -484,5 +484,218 @@ b)	Now, go to CloudFormation console
 
 # -----------> ECS fargate based cluster via AWS console -------------
 
+- Before going to create the fargate based cluster let's first start by creating the Network stack if you had already deleted your stack previously.
+- Since the stack need some rule we shall equally create this IAM  role.
+•	But since Vamsi keeps updating the repo and adding new things clone, this repo at this stage for usage: https://github.com/Kenneth-lekeanyi/ecs-demo
 
+Now let's proceed to create the stacks.
+ - Network stack
+ - IAM stack
+- finally we shall create ECS-EC2 stack, where we shall launch the Fargate just as we launch the EC2 ontop of the ECS Cluster too.
+- So, go to CloudFormation and click on “stack”
+- click on “create stack”
+- click on "with new resources (standard)"
+- then click "upload a template file"
+- click now on [choose file].
+  - Choose “**ecs-demo**” in the cloned repo
+  - Go to “infra”
+  - Select “VPC”
+  - Then click on “open”
+  - Click now on "Next”
+  - stack name: **ecs-demo-network**
+  - click on “Next”
+  - click again on “Next”
+  - Review
+  - click on “create stack”
+  - 
+Now let's proceed to the next step which is for IAM creation so let's now go to IAM stcak creation
+- So, go to CloudFormation again and
+-	click on "stack"
+-	click on "create stack”
+- select "with new resources (standard)"
+-	Click on "upload a template file”
+-	upload a template file
+  - choose file
+  - go to "ecs-demo"
+  - click on "Infra"
+  - click on "IAM"
+  - CLICK NOW ON "Open"
+-	click on "Next"
+-	stack name; **ecs-demo-iam**
+-	click on "Next"
+-	click on "next"
+-	Review
+-	acknowledge the box
+-	click on "create stack"
+-	
+# Now, let's proceed to create ECS-Fargate cluster
+And to do that,
+1)	we have to navigate to the ECS console
+-	then click on "clusters"
+-	click on "create cluster"
+-	select [cluster template]
+- click or select “Networking only” for AWS Fargate
+-	click on "Next step"
+  - Configure Cluster
+-	cluster name: **ecs-demo-fargate-cluster**
+-	click on "CloudWatch container insight"
+  - Check the box on [Enable Container insights]
+  - click now on the create"
+- we have successfully created ECS-Fargate-based cluster. If you click on “view cluster", we shall see the cluster details. ***{So we see that with Fargate, it is pretty simple and we dont have all the Configurations that we had with the EC2 based cluster wehere we had to do a lot of instance configurations. This is purposely because ECS-Fargate is serverless and then AWS will manage all those EC2 Configurations at the backend. So we are just only creating and managing our stack ontop of this cluster.}***
+- you can now proceed to delete this fargate cluster.
+- 
+-	so still on the ECS console
+-	click on cluster
+-	then on the "ecs-demo-fargate- cluster"
+-	Then click on “delete cluster”
+-	then type “delete me”
+-	delete
+-	
+# Now, we are going to create the same ECS-Fargate cluster based using CloudFormation Automation.
+- So to create the ECS-Fargate cluster using Cloudformation
+- go to CloudFormation Console
+-	click on “create stack”
+- Click on "with new resources (standard)"
+-	specify templates
+  - select or click on “upload a template file”
+-	Upload a template file:
+  - [choose file] (click here)
+   - click on "Ecs-demo"
+   - Click on "infra"
+   - hen you click on “ecs-fargate”
+   - then click on "open
+   - Click now on "next"
+   - Stack name: **ecs-demo-fargate-stack**
+   - Click on "Next”
+   - Configure:
+   - Click on next”
+   - Review
+   - click on "create stack"
+- We are now done creating a ECS-Fargate using CloudFormation scripts. We shall now proceed to see how to use the cluster. i.e in task service.
+- 
+# Now, let's start by creating a Task definition for Fargate Cluster
+- Note that, this is quite different from the Task definition that we saw under ECS-EC2 based cluster.
+# Tasks definition for Fargate Cluster
+- So, in order to create these Tasks definition, go to ECS console
+-	click on "Task Definition”
+-	click on “create a new task definition”
+-	select launch type compatibility:
+   - select or click on “FARGATE”
+   - --------> External Explanation ----------
+   - This is when we face the situation on ("On-premis" server), To connect those On-Premis server to the ECS Cluster, we can use Hybrid Activation under SSM; But eith that, this method is quite simple, where we go to the server on-prem and install AWS CLI. Then we configure AWS COnfigure rule where we generate the Secrete Key and new uswer ID. So that these ECS Agent will use the Secrete Key and secured ID to discover the ECS Agent. Hence, AWS has provided the flexibility to interact with on-prem services.
+   - ---------> End of Explanation ----------
+   - 
+- then click on "Next step”
+-	configure task and container definition
+- Task definition name: **ecs-demo-fargate-task-def**
+- Task role: **ecs-demo-task-execution-role**
+- Network mode: **awsvpc**
+- Operating system family: **linux**
+- Task execution rule: **ecs-demo-task-execution-role**
+- Task memory (GB) : **0.5 GB** {If the Application is big, we should select a bigger GB like 28. But since our Application is small, we just select 0.5 GB}
+- Task CPU (VCPU): **0.25 VCPU**  {Here also, if the Application is big, then as we selected a big GB of memory, we should also select a big VCPU}
+  {With Fargate, these are the only part that we are paying for. (All jointly called "Compute Power"}
+- As you can see, the container is just attached to Task. That is why immediately after finishing with Task, we just go to container on the same page.
+-
+- So click on ”Add Container” which is nothing but container definition.
+- So, a page will pop up, which is container definition page.
+   - Container name: **ecs-demo-fargate-container**
+   - Image: **vamsichunduru/ecs-demo:v1** {Here, we are just graping the container name that he has created and saved in his DockerHub. (Go to hub.docker.com)
+   - Private repository authentication: [Live it blank]. We are leaving it blank because we are using a public repository. But if the image is from a private repository, we will have to check this box and provide the secret manager ARN or name of that Repo.
+- Memory limits (MIB): [soft limit] [125]. (Inshort, we leave it blank because we have already defined this under Task Definition.)
+- Port mappings: **80** ***{Thisis because thesame container will be put as Host port since Fargate is running dynamic port mapping. Under ECS-ec2, we deliberately put "0" and "80" because we were imposing that it should use dynamic port mapping}***
+- Essential: [ ] check this box
+- Log Configuration: Check the box on [auto-configuration cloudwatch logs]
+- Click on “Add”
+- Now click on “create”
+- We see that the Task definition with the name, **ecs-demo-fargate-task-def** has been created successfully.
+-	If you click on “view task’ you will see it
+- If you click on the "version:1" and then click on "Json", you will see the template that creates such Task definistion. You can also see that we provided Port 80 and it automatically create the host port as well.
+- Now, we are done with this task definition and in order to run this task definition;
+- 
+-	Click on "Action”
+-	then you click on "Run task”
+-	launch type; select **Fargate**
+-	Operating System: select **linux**
+-	Platform version; **latest**
+-	Cluster: **ecs-demo-fargate** (This drop down here is because you can use this task for another name like if you use it for Dev, you can still come and use this tasks fro Prod etc. So that this Task will be launched in the cluster. So, for now, our intention is to launch this Task in our ecs-demo-Fargate cluster. So keep it as it is.)
+-	number of task: **2**
+-	cluster VPC: ***{Go under CloudFormation, select 'ecs-demo-network' stack. Then click on "output". It will show you the VPC ID that this ecs-demo is using. So, you not this ID. then select that particular VPC ID here under Cluster ID.}***
+-	subnets: Select both subnets (Select all the 2 subnets)
+-	click then on “Run Task”
+- "created task accessfully"
+- you can see the 2 task
+- refresh to see that they're all running
+- click on the task and click on "open link" in a new web. Scroll down to locate it public IP , select it and click on it to take “go to public IP” It will take you to the
+**Hi there!!!*** **Welcome to ECS Devops Demo** (Which is our Application). We can access the Application by just using the IP Address and hitting "Enter" because of dynamic Port mapping runing internally on Port 80:80.
+
+# ----------> Explanation -----------
+- This is different with the VPC based networking and bridges based networking
+
+
+
+Once we have understood the clone and the differences between the EC2 based on this definition an fargate based tax definition click now on the step to delete the running task and to create task through service in the next session.
+So select the stacks you have and go to the top and click on “stop”
+-	Then click on “stop” on the pop up page. You see while after some minutes that all tasks are stopped. And ECS is not creating or running at task  again. Everything is stopped. so at time maybe something happen Maybe the container is unable to pull the image etc and something happened and task get stop and Nothing is making anymore. So users will not be able to access this application anymore.
+So in order to maintain this desired number of task running always even if some are killed  or get stopped, we are going to use a specific component call “service”
+So you need to understand that there is no mandatory requirement that you must use service. Where task is running that is fine. But what if something happens.
+The whole application stops running.
+So that is why we now go ahead to configure service
+service definition for Fragate cluster
+So now let's create service by clicking on service category
+so stay under cluster in the ECS console, Click on “service” just beside “task”
+-	Click on “create” just below it
+-	configure service
+•	launch type 0 select fargate
+•	operating system: linux
+•	Task definition;
+Family: ecs-demo-fargate-task-def
+Revision; select the latest version (latest)
+•	Platform version: LATEST
+•	Cluster: ecs-demo-fargate
+•	Service name: ecs-demo-fargate-service
+•	Number of task:2
+•	service type: REPLICA
+-	deployments
+deployment type. Rolling update
+-	Task tagging configuration
+Enable ECS managed tags
+-	Propagate tax form: (Do not propagate)
+-	Click on “next step”
+•	configure network
+•	cluster VPC: get the VPC ID from the cloud formation stack then go to output you received a VPC ID there. Group it or not it then you select it here.
+•	Subnet: select both subnets
+Keep the other remaining settings as they are, nothing to change.
+-	Click on “next step”
+-	Set auto-scaling (optional)
+-	Click on “next step”
+-	Review
+-	Click on “create service’
+You can see that service has been created successfully.
+Now click on “view service”. You see the task running  and another one pending. To access the task, On ie you are In the service page, click on the task, group it public IP and paste in a Browser you will see our application.
+Hello or Hi there.
+So if you go to status you will see that it is active and the desired task is 2  then running task is 1.
+If you now Go to task, you will notice that On the pending task get killed, service will try to provision a new task. So service will automatically invooke a new task to replace the old or killed task.
+Exercise. If you go to task,select all the running task and stop them, within few minutes service will provision new ones and get them up and running automatically.
+So after understanding the service and task, let's terminate the tax completely.
+An in order to do that see under service click on the service to select it.
+-	Then you click on “Delete” in the middle of update and action
+-	Then type “delete me” and click on delete. This will delete the service and also go and delete the task that are running.
+Now go to cloud formation, click on ecs-demo-fargate-stack
+-	then click on delete”
+-	then click on delete”
+•	now keep the ecs-demo-iam as it is.
+•	Go below that and click on ecs-demo-network and then ypu click on “delete”
+Then click on “delete stack”
+We shall later create all these things with cloud formation as our focus now is in ELB and A5Co.
+So for now keep your ecs-demo-iam.
+•	With the above we have completed the ECS basics (i.e  ECS cluster, ECS cluster types (EC2 fargate), service, task Definition and container definition.
+Let's not proceed to section 2
+which has to do with load balancing and auto scaling.
+•	When you cannot delete VPC, it means that task was being created VPC too was created and 5G too go created and mapped to that VPC.
+Reason why you are unable to sync Lee delete the stack because the VPC has some dependencies. Dependencies file 5G will permit it from being deleted.
+So to delete it first go to the VPC console and try to delete the 5G first before you come to cloud formation and try to delete the stack.
+•	At Work first create a security group, name it before you attach it to the network .
+
+Section 2: AWS ECS load balancing and Auto scaling load balancing with ALB.
 
