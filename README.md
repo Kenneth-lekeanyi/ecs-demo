@@ -346,120 +346,146 @@ Before that let's first see Task definition and Service in ECS-EC2 mode.
 -	Private repository authentication: 'Leave this box blank or unchecked. If you are drawing the image from a private repository, then you can check it and then you pass the ARN of the Repo or the Secret Manager information under'.
 -	Memory limits: [soft limit]: [128]  ***{Make sure you type the "128" out}***
 -	
--	# [EXPLANATION]
-**Soft limit:** On this memory limit, we are saying that for this container above we need 128 MB before compute capacity to be reserved for this container. Since it is just a small computer.
-Hard limit: When do you put hard limit at 256 for example, you are saying that at any given point in time, this container above should not exceed 256 compute memory size of 256MB
-So in our case, We recommend hard limit and maintain soft limit because we don't want to block our container to any hard limit.
-Port mappings: Host port.                              Container port: 80
+-	# ----------------------------------------------------------------------- [EXPLANATION] --------------------------------------------------------------------------------
+- **Soft limit:** On this memory limit, we are saying that, for this container above we need 128 MB of compute capacity to be reserved for this container. Since it is just a small computer.
+- **Hard limit:** When do you put hard limit at 256 for example, you are saying that at any given point in time, this container above should not exceed 256 compute memory size of 256MB.
+- So, in our case, We remove hard limit and maintain soft limit because we don't want to block our container to any hard limit.
+- Port mappings: **Host port:** [**0**] ***{This "zero" is the indication that we are asking AWS to create a dynamic port. Although AWS will create some host somewhere that we dont know and will map it to the 80 port of the Container. If it was a static EC2 Instance, then we could use classical Load Balancer}***
+- Container port: [**80**] ***{ Note that, this mapping is for dynamic Port mapping since our ECS Cluster has just one single EC2 carrying different Containers in it. So it has an ENI that has just 1 port called "Dynamic Port Mapping". which the ALB is very helpful and used here because it will distribute traffic to all the Containers in the EC2 Instance. [So classical Load balancer cannot map dynamic ports]. }***
+- **There are 3 types of Load Balancers.--- Classical LB; Here, the Load Balancerjust map directly to the Port number of the Instance e.g 8080, although it has been suppressed. --- Application LB; Application Load Balancer is used when there are dynamically created ports. Although there are some host ports somewhere in AWS, since there are internally managed by AWS, whenever ALB is used, then the ALB will then map to those ports dynamically created inside that EC2 Cluster which is carrying diff diff containers. So that it will automatically grap the dynamically created ports inside the cluster and will route traffic to those containers ports inside the cluster.***
+- ***In most cases, you will be using Application Load balancer. But when you need a faster network or faster data pocket e.g Netflix.com (for movies) which requires such a fast letency, you should use the "Network Load Balancer***
+- ***Note that, for EC2 to get exposed, it does so in an Elastic Network Interface (Internet). Whenever you see IP Addresses within this range 49152-65535, know that it will requires a Dynamic Load Balancer***
+- # ------------------------------------------------------------- End of Explanation ------------------------------------------------------------------------------------
 -	Click now on “advanced configuration” 
-Essential
--	click on “add"
--	click now on “create”    
-to see the version task definitions so that you can quickly grab the old version .
--	Click on task definition it will show you the various tasks that you have
--	then click on the name of the tasks you want and then you will see the different versions of it so then you can then pack the old version that you want.
-We are done with task definition. Let's now run the task definition by creating the service.
-Running task definition   
-Here we are going to run task definition and create the containers as mentioned in task definistion.
-So go to that, go to your ECS console.
--	Click on “task definition” on the left
--	click on the task definition that you want to run. In this case click on the tax definition that we have created which is ecs-demo-ec2-task-def
-•	Then select the revision that we want to run (we want to run the latest version) so select the latest revision.
-•	Then click on “action” at the top
-•	then you click on “run task”
--	launch type: 0 select EC2
--	Cluster: ecs-demo-ec2
--	Number of tasks: 2
--	Placement templates: AZ balance spread
--	Enable ECS managed tags.
+- Essential: Thick on this box beside [ ] Essential
+-	Then click on “add"
+-	click now on “create”
+-	  
+- To see the version task definitions, so that you can quickly grab the old version,
+-	Click on "task definition" it will show you the various tasks that you have
+-	then click on the Name of the task you want and then you will see the different versions of it, so then you can then pick the old version that you want.
+- We are done with task definition. Let's now run the task definition by creating the **Service.**
+- 
+# Running task definition   
+- Here, we are going to run task definition and create the containers as mentioned in task definistion.
+- So, to that, go to your ECS console.
+-	Click on “Task Definition” on the left
+-	click on the specific task definition that you want to run. In this case, click on the task definition that we have created which is **ecs-demo-ec2-task-def**
+•	Then, select the Revision that we want to run. (we want to run the latest version) so select the "latest revision".
+•	Then click on “Action” at the top
+•	Then you click on “Run Task”
+-	launch type: select [EC2]
+-	Cluster: **ecs-demo-ec2** {Here, you can use thesame Task to run in Dev, Prod and maybe Acceptance. You do this by selecting it here under Cluster}
+-	Number of tasks: **2** ***{lets just say 2 tasks. the intention is to run 2 tasks in this cluster so that we shall see how the ports are created dynamically}***
+-	Placement templates: **AZ Balance Spread**
+-	Click to check the box on [Enable ECS managed tags]
 •	Click now on “run task”
-Then you will see that the two tasks we created and now running.
-•	Now click on the first task ID to see all the details. If you go under container and click on the small arrow you will see the container details as well
-If you copy the IP address with the host port under external link and take it to a new browser, Our simple application is not exposed on top of our EC2 instance as it is well visible or expose on the web. And it is exposed through that dynamically created port.
--	If you click on the second task and do the same you will see that it has been exposed to another host port 49154. An if you copy the IP address plus the pot under external link and take it to a browser, you will see again our application still exposed on top of our EC2 cluster In the web being exposed through a  dynamically created port.
--	Now the created containers can be verified by logging into the EC2 machine and verify docker images and docker containers on the instance by using the below commands.
-To expose our application on the web browser, We shall map this external link or we shall take this external link and map it with the domain name Which will then be mapped to the ALB that tagged together those EC2 and is routing traffic into the container Find within those EC2 so that whenever somebody type facebook.com for example it will come to the DNS and then to the  ALB and get into those EC2 then to the container or task or ports.
-External link-DNS-ALB-EC2,EC2.EC2.
-•	Like we said the container can be verified by logging into the EC2 machine and verifying the docker images and docker containers on the instance.
-So navigate to the EC2 instance that got created and ssh into it.
--	Then do Sudo su-
--	Then run this command “docker images”
-you will see that our docker images have been pushed to the cluster or on top of the ECS cluster
-you will also see the image of the agent.
--	Now do Docker ps-a
-So as to see the running containers. here you will see the 3 running containers which are part of our task. You will see their respective ports in which they are running on. (Now you see the flexibility we are all talking about when it comes to ECS EC2 cluster. As you can easily ssh into the instance and see what is going on there. As well you can add the level of security if you want to do it)
-Once we have understood the task definition and task working behavior, Lets now stop the task by clicking on the stop option in the task.
-So go to Amazon EKS-cluster-tasks where you see the 3 task running.
+-
+# ------------------------------------------------------------------------ Explanation ---------------------------------------------------------------------------
+- Now, you will see that the 2 tasks that we created are now running.
+•	Now click on the 1st task ID to see all the details.
+- If you go under container and click on the small drop down arrow, you will see the container details as well. ***{You will see under that, although we provided just the Container Port, AWS has dynamically created the Host Port 49153 and under the External Link, it has mapped this Host Port to the IP Address of this Container. Although we put the Host Port as "0", AWS has understood that we want dynamic port and it has created the host port for us}***
+- ***{The IP Address of this Container is thesame public IP of that EC2 Instance, so that, if somebody want to access the container (which is a running image), they will access it through the Public IP of the EC2 Instance*** {That is why rather than putting some hard coded port, we just put the dynamic port}.
+- 
+- If you copy the IP address with the Host Port under External Link and take it to a New Browser, Our simple Application is now exposed on top of our EC2 instance as it is now expose ontop of our EC2 Instance, as it is now visibly exposed on the web. And it is exposed through that dynamically created port.
+- 
+-	If you click on the 2nd Task and do thesame, you will still see that, it has been exposed to another Host Port 49154. And if you copy the IP Address plus the Port under External Link and take it to a Browser, you will see again our Application still exposed on top of our EC2 cluster in the web being exposed through a  dynamically created Port.
+-	Now, the created Containers can be verified by logging into the EC2 machine and verify Docker images and Docker Containers on the instance by using the below commands.
+-	So, with Task Definition, we can launch as many tasks as we want.
+-	In thesame way, with the Image in the ECR, WE CAN CREATE AS MANY IMAGES AS WE WANT.
+- ***To expose our Application on the web Browser, We shall map this External Link or we shall take this External Link and map it with the Domain Name, Which will then be mapped to the ALB that tagged together those EC2 and is routing traffic into the containers found inside those EC2. So that whenever somebody type facebook.com for example it will come to the DNS and then to the  ALB and get into those EC2 then to the container or task or ports.***
+- External Link--------> DNS ------------> ALB ----------------> 1st EC2, 2nd EC2, 3rd EC2
+- ***{so, to manage all those Docker Containers is so challenging, that is the more reason why, we employ this EKS, or ECS to manage these numerous Containers. So that, we would be able to bundle them and tag them and expose them to the outside world}***
+- 
+•	Like we said, the container can be verified by logging into the EC2 machine and verifying the docker images and docker containers on the instance.
+- So navigate to the EC2 instance that got created and ssh into it.
+  - Then do `Sudo su -`
+  - Then run this command `docker images`
+  - you will see that our Docker image has been pushed to the cluster or on top of the ECS cluster
+  - you will also see the image of the Agent.
+  - Now do `docker ps -a`  ***{So as to see the running containers.}***
+  - Here, you will see the 3 running containers which are part of our task. You will see their respective Ports in which they are running on.
+  - **Flexibility of ECS-EC2 Cluster**. (Now you see the flexibility that we are all talking about when it comes to ECS-EC2 Cluster. As you can easily ssh into the instance and see what is going on there. As well you can add the level of security if you want to do it)
+- Once we have understood the task definition and task working behavior, Lets now stop the task by clicking on the stop option in the task.
+- So go to **Amazon EKS-cluster-tasks** where you see the 3 task running.
 -	Select the 3 task
--	Then click on “stop” to stop those task
+-	Then click on “stop” to stop those Tasks
 -	Are you sure you want to stop the following tasks…..
-•	Click on “stop” to stop all the task
-if we now reload it we will not see any running task.
-So when we stop the task we can see that is not automatically creating any replicate task or not blocking any termination of task; so in order to manage such actions and to keep a certain number of tasks running at any given points of time and to export task we use a concept called service in the ECS
-So if it was a running application and something happens where in this task got stopped, then our users will not be able to access the application. That will be frustrated. That is why in order to avoid that scenario we use service which is the next ECS component.
-So service will make sure that at any given moment of time the desired number of tasks prescribed are up and running. All the same time service will help us to expose these tasks through the end word on the LB and we can still put some auto scaling group along this service as well.
+•	Click on “stop” to stop all the task.
+- If we now reload it, we will not see any running task.
+***So, when we stop the task, we can see that is not automatically creating any replica task or not blocking any termination of task; so in order to manage such actions and to keep a certain number of tasks running at any given points of time, and to export tasks, we use a concept called **Service** in the ECS.***
 
-Service or ECS service
-now after seeing the importance of service, let's now go ahead and create the ECS service by accessing the services and click on create.
-So still in the ECS console,
--	click on cluster and then you click on
--	Select the cluster that we created ecs-demo-ec2
--	Then you click on “services”
+- ***So if it was a running Application and something happens wherein this task got stopped, then our users will not be able to access the Application. That will be frustrated. That is why in order to avoid that scenario we use **Service** which is the next ECS component.
+- This shows how our Task and Containers correlate with each other because the Container is inside the task.
+- This is the fundamental xtics of Containers. If it stops, that is all about that Container. Reason why we have to always think about a possible version of that Container - So that if the existing one stops, we either rollback or we use an alternative. That is why we have to use **Service** here as our rollback.
+- So, **Service** will make sure that at any given moment of time, the desired number of tasks prescribed are up and running. At thesame time **service** will help us to expose these tasks to the end-word on the LB and we can still put some Auto-scaling group along this service as well.
+# -------------------------------------------------------------------End Of Explanation---------------------------------------------------------------------------------
+
+# Service: or ECS-Service
+- Now, after seeing the importance of service, let's now go ahead and create the ECS-Service by accessing the "Services" and click on create.
+- ***{Since it is a Daemon, only one Task will be deployed on 1 EC2 Instance, just as 1 Container per Pod or EC2. But its thesame Task which can be replicated to another EC2}***
+- So, still in the ECS console,
+-	click on "cluster" and
+-	Select the cluster that we created **ecs-demo-ec2**
+-	Then you click on “Services”
 -	then click on “create” which is just directly under service
-•	Configure service
--	launch type
--	select EC2
--	task definition: ecs-demo-ec2-task-def
--	revision: Choose the latest revision
--	cluster: ecs-demo-ec2
--	service name: ecs-demo-ec2-service
--	Service type, select REPLICA
--	number of task: 2
--	minimum healthy person: 100
--	maximum percent:200
--	deployement circuit breaker: disabled
-•	deployments
--	Deployement type: rolling update
-•	Task placement:
--	Placement templates: AZ balance spread
-•	task tagging configuration
--	enable ECS managed tags
--	propagate tags from: Do not propagate.
-•	Click on “next step”
-•	Load balancing
--	Select none (For now select none we shall later see how to integrate LB)
-•	click on “next step”
-•	set auto scaling ( optional)
--	select: do not adjust the services desired count
-•	click on “next step”
-•	review
--	click on “create service”
--	click on view service to see the tasks running automatically.( This is because we have created the task definition while creating the services on the service we have just created. That is why task is not running automatically).
-Now we can access the task by clicking on the task. We can see the task details and the external link of the container which is used to access the applications
-Just for practice
-now let's go back to the cluster main screen and click on the clusters name ecs-demo-ec2 and then stop the running tasks. You will see that service will automatically create a new tax.
--	Cluster. Click on their name ecs-demo-ec2, task, stop, stop
+- Configure service
+  - launch type:
+  - select [EC2]
+  - Task definition: **ecs-demo-ec2-task-def**
+  - Revision: **Choose the latest revision**
+  - Cluster: **ecs-demo-ec2**
+  - Service name: **ecs-demo-ec2-service**
+  - Service type: select **REPLICA**
+  - Number of task: **2**
+  - Minimum healthy person: **100**
+  - Maximum percent:**200**
+  - Deployement circuit breaker: **Disabled**
+- Deployments
+  - Deployement type: **Rolling update**
+- Task Placement:
+  - Placement templates: **AZ balance spread**
+- Task tagging configuration
+  - Click to check the box on [Enable ECS managed tags]
+  - Propagate tags from: **Do not propagate.**
+- Click on “next step”
+- Load Balancing
+  - Select [None] (For now select "none". we shall later see how to integrate LB)
+- click on “next step”
+- set auto scaling ( optional)
+  - select: [do not adjust the services desired count] ***{Here, although auto-scaling will be explianed later, the desired # put under Service will always be maintained (2) as what we prescribed. So, with SERVICE already defined, it really doesnt matter if Auto-scaling is Configured or not}***. {So, Service will always make sure to keep our desired number as "2", nomatter whatever the situation}
+- click on “next step”
+- Review
+  - click on “Create Service”
+  - click on "view service" to see the tasks running automatically. (This is because we have created the task definition while creating the services on the service we have just created. That is why task is not running automatically).
+ - Now, we can access the task by clicking on the task. We can see the task details and the External Link of the Container which is used to access the Applications
+ - 
+# ------------------------------------------------------------------ Just for Practice --------------------------------------------------------------------------------
+- Now, let's go back to the cluster's main screen and click on the clusters name **ecs-demo-ec2** and then stop the running tasks. You will see that service will automatically create a new task.
+-	Cluster. -----> Click on their name **ecs-demo-ec2**, and then stop the running task.
+-	You will see that Service will automatically create a new Task.
+-	Cluster -------> click on the name **ecs-demo-ec2**,-------> Task -----------> Stop
 -	Click on refresh again and again (you will see that another task is just getting created to replace a stopped task.)
-Importance of service 
-1)	 service will always maintain the number of tasks and ensure there are up and running even if they are killed
-2)	Service will also perform the ALB formation with those task
-3)	service will also perform the ASG of the container within the tax.
-With the above steps, we have successfully created the ECS, EC2 based cluster, service ,task definition and container definitions.
-The question is
-Pods are just from a task
-So the question is only kubenetes?
-•	Because many people are still using K85 and because K85 has evolved where there are not yet ECS and EKS And also because in K85 we can do more complex things than in ECS and EKS Which is still the advantage that K85 has over Docker Swam
-•	Note that although EKS in AWS, it is build ontop of Kubernetes.
+-	
+# Importance of service 
+1)	Service will always maintain the number of tasks and ensure that, there are up and running even if they are killed
+2)	Service will also perform the **ALB** function with those task
+3)	Service will also perform the ASG of the container within the task.
+
+- With the above steps, we have successfully created the ECS-EC2 based cluster, service ,task definition and container definitions.
+- **The question is "Pods are just as Tasks in ECS", then why are people still using Kubernetes?**
+- Its all because many people are still using K8s and because K8s has evolved where there are not yet ECS and EKS; And also because in K8s, we can do more complex things than in ECS and EKS Which is still the advantage that K8s has over Docker Swam
+- # Note that although EKS in AWS, it is build ontop of Kubernetes.
 We can now delete the cluster if we want
-a)	go to services. Select the service ec2-demo-ec2-service
+a) To do that, go to services. Select the service **ec2-demo-ec2-service**
 -	Then click on “delete”
 -	this will automatically delete the task connected to it.
-b)	Now go to cloud formation console
--	Select our cluster stack ecs-demo-ec2-cluster
+b)	Now, go to CloudFormation console
+-	Select our cluster stack **ecs-demo-ec2-cluster**
 -	Then click on “delete” to delete it.
-Always make sure that you copy and paste without spaces so that it should work without any issue
 
-- ECS fargate based cluster via AWS console
+
+# ----------------------------------> ECS fargate based cluster via AWS console ------------------------------------------------------------------------------------
 
 
 
