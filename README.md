@@ -31,9 +31,8 @@
   - **CLUSTER ----------- - nodegroup-------------- - Pods--------- - containers/images**
 
 # Section One: THE CORE CONCEPT OF ECS
--
----------------------------------------------------------------------------------------------------------------------------------------------------------
-- **SOME EXPLANATION HERE**
+
+# --------------------------------> EXPLANATION HERE -------------------------------------------
 - 
 There are 4 major core concepts of ECS which are:
 1)	container drfinition
