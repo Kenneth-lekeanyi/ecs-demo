@@ -33,7 +33,6 @@
 # Section One: THE CORE CONCEPT OF ECS
 
 # --------------> EXPLANATION HERE ------------------
-- 
 There are 4 major core concepts of ECS which are:
 1)	container drfinition
 2)	task definition
@@ -89,9 +88,8 @@ under the Amazon ECS console click on cluster
 -	locate default and click on it
 -	then click on “delete cluster”
 -	type “delete me” define lutting delete
----------------------------------------------------------------------------------------------------------------------------------------------
-- **END OF EXPLANATION**
--	
+# -------------> END OF EXPLANATION --------------
+
 # a)	Set up required IAM roles.
 - We need to set up an EC2 Role. The reason is for the ECS agents on the EC2 instance to interact with the ECS and ECR. So,
 - go to "IAM"
@@ -217,7 +215,6 @@ For the roles, we have to create 4 Roles. As we have already created the first R
 - search for "ecs-demo-ec2-role"
 - select it
 - then click on "delete".
-
 - 
 # Creation of ECS cluster using Cloud formation Script.
 # 1)	IAM Stack creation.
@@ -345,7 +342,7 @@ Before that let's first see Task definition and Service in ECS-EC2 mode.
 -	Private repository authentication: 'Leave this box blank or unchecked. If you are drawing the image from a private repository, then you can check it and then you pass the ARN of the Repo or the Secret Manager information under'.
 -	Memory limits: [soft limit]: [128]  ***{Make sure you type the "128" out}***
 -	
--	# ----------------------------------------------------------------------- [EXPLANATION] --------------------------------------------------------------------------------
+-	# -----------> EXPLANATION ------------
 - **Soft limit:** On this memory limit, we are saying that, for this container above we need 128 MB of compute capacity to be reserved for this container. Since it is just a small computer.
 - **Hard limit:** When do you put hard limit at 256 for example, you are saying that at any given point in time, this container above should not exceed 256 compute memory size of 256MB.
 - So, in our case, We remove hard limit and maintain soft limit because we don't want to block our container to any hard limit.
@@ -354,7 +351,8 @@ Before that let's first see Task definition and Service in ECS-EC2 mode.
 - **There are 3 types of Load Balancers.--- Classical LB; Here, the Load Balancerjust map directly to the Port number of the Instance e.g 8080, although it has been suppressed. --- Application LB; Application Load Balancer is used when there are dynamically created ports. Although there are some host ports somewhere in AWS, since there are internally managed by AWS, whenever ALB is used, then the ALB will then map to those ports dynamically created inside that EC2 Cluster which is carrying diff diff containers. So that it will automatically grap the dynamically created ports inside the cluster and will route traffic to those containers ports inside the cluster.***
 - ***In most cases, you will be using Application Load balancer. But when you need a faster network or faster data pocket e.g Netflix.com (for movies) which requires such a fast letency, you should use the "Network Load Balancer***
 - ***Note that, for EC2 to get exposed, it does so in an Elastic Network Interface (Internet). Whenever you see IP Addresses within this range 49152-65535, know that it will requires a Dynamic Load Balancer***
-- # ------------------------------------------------------------- End of Explanation ------------------------------------------------------------------------------------
+- # ----------- End of Explanation ---------------
+- 
 -	Click now on “advanced configuration” 
 - Essential: Thick on this box beside [ ] Essential
 -	Then click on “add"
@@ -380,7 +378,7 @@ Before that let's first see Task definition and Service in ECS-EC2 mode.
 -	Click to check the box on [Enable ECS managed tags]
 •	Click now on “run task”
 -
-# ------------------------------------------------------------------------ Explanation ---------------------------------------------------------------------------
+# -----------> Explanation ------------
 - Now, you will see that the 2 tasks that we created are now running.
 •	Now click on the 1st task ID to see all the details.
 - If you go under container and click on the small drop down arrow, you will see the container details as well. ***{You will see under that, although we provided just the Container Port, AWS has dynamically created the Host Port 49153 and under the External Link, it has mapped this Host Port to the IP Address of this Container. Although we put the Host Port as "0", AWS has understood that we want dynamic port and it has created the host port for us}***
@@ -418,7 +416,7 @@ Before that let's first see Task definition and Service in ECS-EC2 mode.
 - This shows how our Task and Containers correlate with each other because the Container is inside the task.
 - This is the fundamental xtics of Containers. If it stops, that is all about that Container. Reason why we have to always think about a possible version of that Container - So that if the existing one stops, we either rollback or we use an alternative. That is why we have to use **Service** here as our rollback.
 - So, **Service** will make sure that at any given moment of time, the desired number of tasks prescribed are up and running. At thesame time **service** will help us to expose these tasks to the end-word on the LB and we can still put some Auto-scaling group along this service as well.
-# -------------------------------------------------------------------End Of Explanation---------------------------------------------------------------------------------
+# -------------> End Of Explanation -------------
 
 # Service: or ECS-Service
 - Now, after seeing the importance of service, let's now go ahead and create the ECS-Service by accessing the "Services" and click on create.
@@ -459,7 +457,7 @@ Before that let's first see Task definition and Service in ECS-EC2 mode.
   - click on "view service" to see the tasks running automatically. (This is because we have created the task definition while creating the services on the service we have just created. That is why task is not running automatically).
  - Now, we can access the task by clicking on the task. We can see the task details and the External Link of the Container which is used to access the Applications
  - 
-# ------------------------------------------------------------------ Just for Practice --------------------------------------------------------------------------------
+# --------> Just for Practice --------------
 - Now, let's go back to the cluster's main screen and click on the clusters name **ecs-demo-ec2** and then stop the running tasks. You will see that service will automatically create a new task.
 -	Cluster. -----> Click on their name **ecs-demo-ec2**, and then stop the running task.
 -	You will see that Service will automatically create a new Task.
@@ -484,7 +482,7 @@ b)	Now, go to CloudFormation console
 -	Then click on “delete” to delete it.
 
 
-# ----------------------------------> ECS fargate based cluster via AWS console ------------------------------------------------------------------------------------
+# -----------> ECS fargate based cluster via AWS console -------------
 
 
 
