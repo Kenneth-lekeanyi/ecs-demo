@@ -795,12 +795,12 @@ The github repo is: https://github.com/Kenneth-lekeanyi/ecs-demo/blob/master/inf
   - Container memory: **512**
   - Container port: **80**
   - Desired count: **2** ***{You can put 4 or 3}***
-•	EnvironmentName: **ecs-demo**
-•	ImageURI: **Vamsichunduru/ecs-demo:v1**
-•	Path: *  ***{bECAUSE WE ARE PUTTING A load Balancer, that LB will be able to have a particular path. by default, we are saying that, whatever traffic you have (*) rout it to the Load Balancer that we are creating}***
-•	Prority: **1** **{Here, we are saying that, execute this particular function "*" that we have in our path as the first priority, and whatever traffic that it has from the LB, it will route the traffic to Task that we have put in "Desired count" above.}***
-•	Service name: **ecs-demo-service**  (Since we are creating a service, This is just the Service Name}
-•	Click on “next”
+- EnvironmentName: **ecs-demo**
+- ImageURI: **Vamsichunduru/ecs-demo:v1**
+- Path: *  ***{bECAUSE WE ARE PUTTING A load Balancer, that LB will be able to have a particular path. by default, we are saying that, whatever traffic you have (*) rout it to the Load Balancer that we are creating}***
+- Prority: **1** **{Here, we are saying that, execute this particular function "*" that we have in our path as the first priority, and whatever traffic that it has from the LB, it will route the traffic to Task that we have put in "Desired count" above.}***
+- Service name: **ecs-demo-service**  (Since we are creating a service, This is just the Service Name}
+- Click on “next”
 -	Configure stack
   - click on “next”
 -	Review
@@ -812,205 +812,219 @@ To do this
 -	Go to EC2 console
 -	Go to Load Balancer
 -	select the newly created ALB and copy its DNS name.
--	Paste it in the browser to see the deployed Application with the LB DNS.
+-	Paste it in the Browser to see the deployed Application with the LB DNS.
 -	You can also access the logs to see the logs that have been generated
 -	Note that: These logs are coming from the Tasks. So that whatever is happening inside the Task is being pushed to CloudWatch. So, these logs are reporting whatever is coming from the ALB and getting into task.
 
+# -------> Some Explanation ------>
+- **Service:*** This ensures that the desired number of required Tasks are up and running. And also register the Task to the ALB, ASG to connect to external world.
+- **Task Definition:** Roles networking, Compute power such as VCPU, Memory etc Revision in Task;
+- when Service creates a new Task to replace the Task that get killed, such a newly created Task comes in as Revision as a revised copy of the old Task that got killed after executing its function. So basically, Revisions are different versions of Tasks.
+- **Container definition:*** This will have the Name of the Container, URI OF THE container, Image name, Volume.
+- **ECS Cluster:*** This is just a logical grouping of all these resources (Service, Task, Contianer).
+- 
+- **Dynamic Port Mapping:** This happens in an EC2 Instance wherein Containers or different Containers found within that single EC2 Instance can be able to communicate using thesame Host Port without being limited to the choice of using that single Host Port which we put as "0".
+- Whenever any of the Port is using this dynamic Port, we should expect it IP Address to fall within the range of 49152-6556
+- So, whenever AWS sees this "0", it will automatically know that the intention is to use dynamic Port number and the IP address or any IP Address that it attribute in this situation will fall between 49152-6556 which always available for your Task, and not restricting to say "already in-use", so that, whenever you see any IP address falling between this range, know it is using dynamic port mapping.
+- 
+- Q & A:
+- **Question:** What is the difference between the Networking of EC2 Cluster and the Networking of Fargate Cluster?
+- **Answer:** EC2 Cluster Networking uses the Bridge Networking, which is the Docker default networking with only 1 AMI attached to Containers which is static port. But the Fargate Cluster uses the AWS VPC Networking of ENI which is dynamic port.
 -
-Q $ A
-If a company wants to build an application like this one that we have been dealing with what will be required from us the DevOps engineers?
-Go through this with this diagram illustration
-first idea
-1)	First thing to do is to manually prepare it as we did so as to understand (So first thing to do is a manual hands on as we did)
-Task definition
-Service
-Cluster
-So that if you are creating a container you will know that you need an image or container image.
-2)	Then think about how you will automate it. Whether you will use cloud formation or terraform or Boto3 or CDK or whatever tool you are comforted with.
-First job
-1a) Then using all these things we shall start to develop the infrastructure first.
-On what are the infrastructure we need?
+- **Question:** If a company wants to build an application like this one that we have been dealing with, what will be required from us the DevOps engineers?
+- **Answer:*** Go through this with the Architectural diagram illustration
+- **First idea:**
+# 1)	First thing to do, is to manually prepare it as we did, so as to understand (So first thing to do is a manual hands-on as we did)
+  - Task definition
+  - Service
+  - Cluster
+- So that if you are creating a container you will know that you need an image or container image, (that will be placed in an ECR or DockerHub.
+# 2)	Then think about how you will automate it. Whether you will use CloudFormation or terraform or Boto3 or CDK or whatever tool you are comforted with.
+- **First job**
+# 1a) Then using all these things we shall start to develop the infrastructure first.
+# And what are the infrastructure we need?
 1)	We need a VPC
-2)	we need some IAM roles
+2)	we need some IAM Roles
 3)	we need an ECS cluster stack
-all these if you are deploying for ECS CPU.
-If you want to use but EKS, it is pretty much the same
--	You need a VPC
--	you need some IAM roles
--	you need an EKS cluster
-if you want to use but EC2 to do the deployement
--	you need a VPC
+- All these if you are deploying for ECS.
+- If you want to use but EKS, it is pretty much the same thing.
+  - You need a VPC
+  - you need some IAM roles
+  - you need an EKS cluster
+# if you want to use but EC2 to do the deployement
+- you need a VPC
 -	you need some IAM roles
 -	you need an EC2
-if you want to deploy using lambda, then
+# if you want to deploy using lambda, then
 -	You need a VPC
 -	you need some IAM roles
 -	you need Lambda.
-•	So first creat your VPC so that the same VPC can be used by all methods like ECS, EKS,EC2 etc.
-•	Then create your IAM roles too, so that the same IAM can be use by both methods as well if possible.
-1)	So with a VPC; first group the cidr ranage, subnet cidr etc. So as to go and prepare your cloud formation script
+-	
+- So, first creat your VPC so that the same VPC can be used by all methods like ECS, EKS,EC2 etc.
+- Then create your IAM roles too, so that the same IAM Roles can be used by both methods as well if possible.
+- 
+1)	So with a VPC; first group the cidr ranage, subnet cidr etc. So as to go and prepare your CloudFormation script
 2)	then do the same thing for IAM role
 3)	then go and develop or create an empty ECS cluster
-you then prepare all these 1,2,3, initial phase and keep
-So that whenever the developers gives you the application code then we just proceed to put up layer (4)
-4)	We will then come up with another cloud formation to create
--service
--task definition
-(with the application code taking the requirements from the application developer).
-This is because unless we have the infrastructure even if the developer has the application, we cannot deploy everything. We need the infrastructure to deploy this application code that has been build.
-So as he is building his application code, you too the DevOps engineer you are preparing your infrastructure as well. Search that immediately he gives the application code to you you just start with stage 4 to prepare the CF on
--	Service
--	Task
-From the app you can build another CICD as well. And knowing that the base infrastructure setup is now Good and guaranteed enough, we can deploy our CICD application gotten from the application code on top of this base infrastructure.
-What most of the companies now do is that they use mastered method therein
+- you then prepare all these 1,2,3, initial phase and keep
+- So that whenever the developers gives you the application code then we just proceed to put up layer (4)
+4)	We will then come up with another CloudFormation to create
+  - Sservice
+  - Task definition
+- (with the Application Code, taking the requirements from the application developer).
+- This is because, unless we have the infrastructure even if the developer has the Application, we cannot deploy everything. We need the infrastructure to deploy this Application Code that has been build.
+- So, as he is building his Application Code, you too the DevOps engineer you are preparing your infrastructure as well. Such that immediately he gives the Application Code to you, you just start with stage 4 to prepare the CloudFormation on
+  - Service
+  - Task
+- From the App, you can build another CICD as well. And knowing that the base infrastructure setup is now good and guaranteed enough, we can deploy our CICD application gotten from the Application Code on top of this base infrastructure.
+-
+# - What most companies now do is that, they use master method wherein;
+- 1) They start by building the **Infrastructure Pipeline** using **Terraform Infrastructure Pipeline**
+  2) They develop a Terraform Code that provision ALL the infrastructure resources into a Repository
+  3) They configure AWS CLI in their local
+  4) They then push the Infrastructure code into the Terraform Infrastructure pipeline and all the Infrastructure get provisioned in AWS Concole automatically called cluster stack. So that you are not doing anything manually.
+# 5) They then take the application code, build a CICD Pipeline and deploy to the cluster that is already existingat the Infra level.
+- So, everything is automated. Nothing is manually done.
+# -------> End of Explanation ------>
 
-
-
-
-So then with this task you are not doing anything manually.
-As a DevOps engineer you are pushing the infrastructure code to the repository and immediately the infrastructure is getting triggered and it is creating your infrastructure.
-So everything is automated, nothing is manual here.
-So, so far we launched our
--	VPC
--	ECS
--	IAM
-fargate services
-task
-ALB (target group)
-Path mapping
-Let's delete the stuff to prevent some changes
-1)	go to load balancer
+# Let's delete the stuff to prevent some changes
+1)	go to Load Balancer
 -	under the load balancer click on “listener”
--	then click on the - at the top
+-	then click on the minus sign - at the top
 -	then click on “delete”
-this rule was added by him manually that is why we are deleting it single.
-2)	Now go back to cloud formation
+- this role was added by him manually that is why we are deleting it single.
+2)	Now go back to CloudFormation
 -	click on stack
--	then under the stock name click on the “ecs-demo-vpc-ecs-ALB” This is because it has a NAT gateway attached to it that will change it as well.
-3)	Click on the ecs-demo-vpc-ecs-alb under cloud formation then click on “delete”
-Auto-scaling
-auto scaling with help to scale out/scale in the number of tasks within a service to help the heavy incoming traffic flow and to save the cost during less user access by scaling in.
-Steps to enable autoscaling
-1)	update the service to enable the auto scaling
-2)	configure the scaling policy with metrics
-a)	target scaling policy
-b)	step scaling policy
-so if you did not delete the stuff that's fine but if you deleted them, then let's create them back.
-To create the VPC stack
-•	go to create the stack, go to your cloud formation console again
--	click on “create stack”
-with new resources (standard)
-•	prepare template
--	template is ready
-•	specify template
--	upload a template file
-•	upload a template file
-choose file click here
-•	ecs-demo
--	click on infra
--	choose “VPC-alb-ecs”
--	then click on “open”
-•	Click now on “next”
-•	stack name: ecs-demo-vpc-ecs-alb
-•	next
-•	configure stack options
-click on “next”
-•	review
-click on “create stack”
-Let's now proceed to create the fargate stack
-so still go to the cloud formation console
--	click on “create stack”
-with new resources (standard)
--	prepare template
-Template is ready
--	template source
-upload a template file
--	Upload a template file
-(choose file) click here
-Ecs-demo
-Click on infra
-then click on fargate service tax
-then click on “open”
--	then click on “next”
--	stack name: ecs-demo-fargate
--	next
--	review
-Click on “create stack”
-now let's focus on auto scaling
-we have seen that
+-	then under the stack name click on the **ecs-demo-fargate** stack.
+-	Then click on "delete". When it is completed, we proceed to delete the "ecs-demo-vpc-ecs-ALB". This is because it has a NAT gateway attached to it that will change us as well.
+3)	Click on the **ecs-demo-vpc-ecs-alb** under CloudFormation then click on “delete”
+ 	
+# --------> Auto-scaling.--------->
 
-ECS service---help us to maintain---[desired # of task=2]
-                                                                       ---ALB
-                                                                      ---ASG
-The role of ASG service will help to always maintain the desired number of tax that are up and running. Then what if the traffic suddenly rises to set 2 million trying to access out only 2 desired number of tasks?
-So ASG will come in and edit the desired number of tasks to either scale up to 5 or 6 depending on the amount of traffic coming in. And it will also scale down if traffic gradually reduces to say 1 task by editing the desired number of tasks prescribed to respond to the decrease number of traffic.
-Auto scaling group of task
-For us to create an autoscaling group for our tasks, we go to service because one of the copabilities of services to create the ALB, ASG And maintain the desired number of
-Service-desired number of task
--	ALB; security
--	ASG; traffic
-So let's go to our service and to access service go to ECS console
--	Click on clusters
--	Click on our cluster” ecs-demo-cluster” that we have created
+- Auto-scaling will help to scale-out and scale-in the number of tasks within a service to help the heavy incoming traffic flow and to save the cost during less user access by scaling-in.
+# Steps to enable autoscaling
+1)	Update the service to enable the Auto-scaling
+2)	Configure the scaling policy with metrics
+   a) Target scaling policy
+   b) Step scaling policy
+- So, if you did not delete the stuff that's fine but if you deleted them, then let's create them back.
+- To create the VPC stack, go to CloudFormation Console again
+-	click on “create stack”
+  - [with new resources (standard)]
+- prepare template:
+  - template is ready
+- specify template:
+  - upload a template file
+- Upload a template file
+  - [choose file] click here
+  - "ecs-demo"
+  - click on "infra"
+  - choose “VPC-alb-ecs”
+  - then click on “open”
+- Click now on “next”
+- stack name: **ecs-demo-vpc-ecs-alb**
+- next
+- configure stack options
+- click on “next”
+- Review
+- click on “create stack”
+- 
+# Let's now proceed to create the Fargate Stack
+- so still go to the CloudFormation console
+-	click on “create stack”
+- [with new resources (standard)]
+-	prepare template:
+  - Template is ready
+-	template source:
+  - upload a template file
+-	Upload a template file:
+  - [choose file] click here
+  - "ecs-demo"
+  - click on "infra"
+  - then click on "fargate service task"
+  - then click on “open”
+-	then click on “next”
+-	stack name: **ecs-demo-fargate**
+-	next
+-	Review
+- Click on “create stack”
+-
+- # Now let's focus on Auto-Scaling
+- we have seen that: **ECS Service---> help us to maintain -----> [desired number of tasks = 2], increase in traffic or decrease in traffic ----> ALB ----> ASG Increase & Decrease.**
+- The role of ASG here is that, **Service** will help to always maintain the desired number of task that are up and running. But what if the traffic suddenly rises to say 2 million trying to access only 2 desired number of tasks?
+- So, ASG will come in and edit the desired number of tasks to either scale up to 5 or 6 depending on the amount of traffic coming in,. And it will also scale down if traffic gradually reduces to say 1 task by editing the desired number of tasks prescribed to respond to the decrease number of traffic.
+
+# Auto-Scaling Group for Task
+- For us to create an Auto-scaling Group for our tasks, we go to Service, because one of the copabilities of Service is to create the ALB, ASG And maintain the desired number of Tasks
+--------> Service------> desired number of task
+--------> Service------> ALB; security
+--------> Service------> ASG; traffic
+  
+- So, let's go to our service. And to access service go to ECS console
+-	Click on "Clusters"
+-	Click on our cluster **ecs-demo-cluster** that we have created
 -	this will then open the cluster when you will be able to see services
-so click on our “ecs-demo-service”
-once we have on the service page, now click on auto sealing section to see or check if any auto scaling is already enabled on the service.
-As there is no autoscaling enable as of now, click on update to edit the service and add the auto scaling.
--	So click now on auto scaling
--	then you click on” update” (so that we can update the service) this is when we shall configure the auto scaling tax.
--	Configure service; here you will see that we have already configured this before. So proceed to the next step
+- So, click on our “**ecs-demo-service**”
+- once we are on the service page, now click on "Auto-sealing section" to see or check if any auto scaling is already enabled on the service.
+- As there is no Auto-scaling enabled as of now, click on "update" to edit the service and add the Auto-scaling.
+-	So click now on "Auto-scaling"
+-	then you click on "update” (so that we can update the service). This is when we shall configure the Auto scaling task.
+-	Configure service;
+-	Here, you will see that we have already configured this before. So proceed to the next step
 -	click on “next step”
 -	configure network
-click on “next step”
--	set auto scaling (optional)
-this is the place where we are going to add auto scaling settings.
-1)	Target taking scaling: 
-2)	schedule scheduling
-3)	step scaling policy
+- click on “next step”
+-	set Auto scaling (optional): ***{this is the place where we are going to add auto scaling settings.}***
+1)	**Target Taking scaling:** T1, T2, T3; When it gets to 70% CPU Utilization, it will stop scaling most task
+2)	**Schedule Scaling:** e.g Black Friday, email checking in the mornings etc, scale up within these days and times in the mornings
+3)	**Step scaling policy:** 70% whenever CPU utilization gets to 70%, +add 1 step and whenever CPU Utilization gets to 30%, subtract 1 step (Most companies uses this Step Scaling policy, because this is where you have most of the control)
 so,
 -	set auto scaling(optional)
-now on this page
--	click on select “configure service autoscaling to adjust your services desire courd” and then feel the details here.
-. Minimum number of task: 1
-. Design number of task: 2
-. Maximum number of taxsks: 4
-. IAM role for service auto scaling: ecs-demo-asg-role
+- now on this page,
+-	click on select “**configure service Auto-scaling to adjust your services desire courd**” and then fill in the details here below.
+  a) Minimum number of task: **1**
+  b) Design number of task: **2**
+  c) Maximum number of taxsks: **4**
+  d) IAM role for service auto scaling: **ecs-demo-asg-role**
 -	Automatic task scaling policies
--	click on “add scaling policy”
-a page will pop up for you to add the policy 
--	scaling policy type
--	select “ step scaling”
--	policy name: ecs-demo-scale-out-policy,
--	Execute policy when: create new alarm
-•	Alarm name: scale-out-alarm
-•	ECS service metric: CPU utilization
-•	Alarm threshold: Average of CPU utilization >- 2 for 1 consecutive period of 5 minutes
--	Then click on “ save”
--	Scaling action: Add 1 task when 2
-Interpretations: i.e whenever CPU utilization is greater than 2, add 1 task.
--	 cool down period. 300 Seconds between sealing actions. So we are saying that for every time that you add a task for CPU utilization get greater than 2, take a break to colddown.
+  - click on “Add scaling policy”
+- A page will pop up for you to add the policy 
+-	Scaling policy type
+  - select “**step scaling**”
+  - policy name: **ecs-demo-scale-out-policy**,
+  - Execute policy when: **create new alarm**
+  - Alarm name: **scale-out-alarm**
+  - ECS service metric: **CPU Utilization**
+  - Alarm threshold: [**Average**] of CPU utilization >- [2] for [70] consecutive period of [5 minutes]
+  - Then click on “ save”
+-	Scaling action: [**Add88] [**1**] [task] when [**2**]
+- # Interpretations: i.e whenever CPU utilization is greater than 2, add 1 task.
+-	Cool down period. [**300**] Seconds between sealing actions.
+-	# So we are saying that for every time that you add a task, when CPU utilization get greater than 2, take a break to colddown.
 -	 Click now on “ save”
-Then simply proceed to the next step
-•	Click again on “ add scaling policy”
-Scaling policy type
--	Step scaling
--	Policy name: ecs-demo-scale-in-policy
-•	Execute policy when: create new alarm
-•	Alarm name: scale-in-alarm
-ECS service metric ( taking alarm of this repair): CPU utilization
-•	Alarm threshold ( average) of CPU utilization < 1 for 1 consecutive period of 5 mounts
-Interprelation so whenever CPU utilization is les than 1, go ahead and rename 1 task. So when ever this is done that will trigger the alarm that will afread and reuse the task.
-•	Then click on “save”
-•	Add policy
--	Scaling action (remove 1 task when 1)
--	Cooldown period (300)
-•	Click now on “save”
-•	Click now on “next step”
-•	Review
-Click on “update service”
-•	Click here on “view service”
-Click on auto scaling between event and deployment to see your AS our auto scaling has been created.
-*Now, we can check the individual alarm details by clicking on the scale-out-alarm and scale-in-alarms individually.
+- Then simply proceed to the next step
+- Click again on “Add Scaling policy”
+- Scaling policy type:
+  - **Step scaling**
+-	Policy name: **ecs-demo-scale-in-policy**
+- Execute policy when: click to select "create new alarm"
+- Alarm name: **scale-in-alarm**
+- ECS service metric (this means taking alarm of): **CPU utilization**
+- Alarm threshold [Average] of CPU utilization [<-][1] "For demo purposes" for [1] consecutive period of [5 minutes]
+# Interprelation: So, whenever CPU utilization is les than 1, go ahead and remove 1 task. So whenever this is done, that will trigger the alarm that will go ahead and remove the task.
+- Then click on “save”
+- Add policy
+  - Scaling action: [**Remove**] [**1**] task when (1)
+  - Cooldown period [**300**]
+- Click now on “save”
+- Click now on “next step”
+- Review
+- Click on “Update service”
+- Click here on “view service”
+- Click on Auto scaling between [event] and [deployment] to see your AS.
+- Our Auto scaling has been created.
+- 
+# Now, we can check the individual alarm details by clicking on the scale-out-alarm and scale-in-alarms individually.
 If you click as the “ecs-demo-cluster” and click on auto-scaling, you will see that the desired count has been turned to “1” instead of “2”. This is because auto-scaling has gone into effect immediately and it has seen that they is no optimum utiliation of the CPU, so it has triggered and an alarm and 1 task has been removed.
 This shows that auto-scaling group is working perfectly.
 •	Now to see how the alarm is working, still under “auto-scaling” click on any of the alarms ( either the “scale-out-alarm” or on the “ scale-on-alarm”). So as to see the state of the alarm in the cloudwatch.  OR
