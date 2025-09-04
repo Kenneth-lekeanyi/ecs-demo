@@ -1023,7 +1023,8 @@ so,
 - Click here on “view service”
 - Click on Auto scaling between [event] and [deployment] to see your AS.
 - Our Auto scaling has been created.
-- 
+
+# ---------> EXPLANATION ------->
 # Now, we can check the individual alarm details by clicking on the scale-out-alarm and scale-in-alarms individually.
 If you click as the “ecs-demo-cluster” and click on auto-scaling, you will see that the desired count has been turned to “1” instead of “2”. This is because auto-scaling has gone into effect immediately and it has seen that they is no optimum utiliation of the CPU, so it has triggered and an alarm and 1 task has been removed.
 This shows that auto-scaling group is working perfectly.
