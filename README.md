@@ -1026,83 +1026,97 @@ so,
 
 # ---------> EXPLANATION ------->
 # Now, we can check the individual alarm details by clicking on the scale-out-alarm and scale-in-alarms individually.
-If you click as the “ecs-demo-cluster” and click on auto-scaling, you will see that the desired count has been turned to “1” instead of “2”. This is because auto-scaling has gone into effect immediately and it has seen that they is no optimum utiliation of the CPU, so it has triggered and an alarm and 1 task has been removed.
-This shows that auto-scaling group is working perfectly.
-•	Now to see how the alarm is working, still under “auto-scaling” click on any of the alarms ( either the “scale-out-alarm” or on the “ scale-on-alarm”). So as to see the state of the alarm in the cloudwatch.  OR
-•	You can go to the Cloud watch console, then you click on “ All alarms” you will see all our 2 alarms there. You will see that the in-alarms is showing in Bed, meaning that this in-alarm has been triggered. Whatever condition that we put there has been reached, so the alarm has been triggered.
-•	Click on “ history” to read what is going on there”.
-•	If you select or click on event” you will see what has happened.
-Read the message there in the time frame that it happened
-now as both the load balancer an auto scaling and enabled, let's simulate some traffic on the load balancer endpoint so that it should automatically increase the CPU utilization of the ECS service.
-Here is the doc used to simulate the load
-Hppts://www.humansreadcode.com/ab-performance-test-docker/
-So executor the below commands in order to download Apache-ab and to run the load test using it. For this we are using docker so it does not matter whether you devop machine is Marc or window, as long as you have docker installed and configured.
-Use the below GitHub link to access the GitHub
-where we can group those commands to use
-github.com/cvamsikrishna11/ecs-demo/blob/master/help/apache-bench-load-testing.txt.
-so to start
+- If you click as the “ecs-demo-cluster” and click on "auto-scaling", you will see that the desired count has been turned to “**1**” instead of “**2**”. This is because auto-scaling has gone into effect immediately and it has seen that they is no optimum utiliation of the CPU, so it has triggered an alarm and **1** task has been removed.
+- This shows that auto-scaling group is working perfectly.
+- 
+- Now, to see how the alarm is working, still under “auto-scaling” click on any of the alarms (either the “scale-out-alarm” or on the “scale-on-alarm”). So as to see the state of the alarm in the cloudwatch.  **OR**
+- You can go to the CloudWatch console, then you click on “All alarms” you will see all our 2 alarms there. You will see that the **in-alarms** is showing in **Red**, meaning that this in-alarm has been triggered. Whatever condition that we put there has been reached, so the alarm has been triggered.
+- Click on “history” to read what is going on there”.
+- If you select or click on "Event” you will see what has happened.
+- Read the message there in the time frame that it happened
+- **Now, as both the Load Balancer and Auto-scaling are enabled, let's simulate some traffic on the Load Balancer endpoint so that it should automatically increase the CPU utilization of the ECS service.***
+- 
+- ***The objective of this exercice is that, we want to inject some traffic on the ALB, And see how the CPU Utilization will scale up due to the increased load and then Auto-scaling will scale up the number of Tasks.***
+- Here is the doc used to simulate the load: https://humansreadcode.com/post/2017-05-29-ab-testing-docker/
+
+- So execute the below commands in order to download Apache-ab and to run the load test using it. For this we are using docker, so it does not matter whether your machine is a Marc or window, as long as you have docker installed and configured, you are good.
+- Use the below GitHub link to access the Commands. where we can grap those commands to use: https://github.com/Kenneth-lekeanyi/ecs-demo/blob/master/help/apache-bench-load-testing.txt
+
+- so, to start
 1)	Let's download the http-ab image and to run the container through this command.
-Docker run-dit-name httpd-ab-v/var/www/html:/user/local/apache2/htdocs/httpd
-Run this command in your terminal since docker is already installed in your computer.
--	But before that common ensure your ducker is up and running.
-Do: docker ps-a to see that the container is up and running
-2)	Going to the next command let's access the bash in the running container through the command.
-Docker exec-it httpd-ab bash
-3)	Let's now generate the load to the load balancer DNS. But you have to replace the LB DNS you find in the command with the DNS of your own ALB.
-So first copy the entire command and take it to a notepad or on a text editor
-Ab-r-c 500-n 5000000 http://ecs-d-publi-h9d4utps3s74-2106267235.us-east-1.elb.amazonaws.com
-Go now and group the DNS of your ALB
+- `docker run -dit --name httpd-ab -v /var/www/html:/usr/local/apache2/htdocs/ httpd`
+- Run that command in your terminal since docker is already installed in your computer.
+-	But before running that command, ensure your ducker is up and running. So do
+-	`docker ps -a`, to see that the container is up and running
+2)	Going to the next command, let's access the bash in the running container through the command.
+- `docker exec -it httpd-ab bash`
+3)	Let's now generate the load to the Load Balancer DNS. But you have to replace the LB DNS you find in the command with the DNS of your own ALB.
+- So, first copy the entire command and take it to a notepad or on a text editor and modify it there by the URL with that of your own Load Balancer. To see the URL of your Load balancer, go to your EC2 Console, locate and click on "load Balancers", Then click to select the newly created ALB and copy its DNS.
+- `ab -r -c 500 -n 5000000 http://ecs-d-publi-h9d4ufps3s74-2106267235.us-east-1.elb.amazonaws.com/`  ***{"ab" means apache workbench, "-r" means recalling, "c" means continouous request, "-n" means number of intotals}***
+
+- Go now and group the DNS of your ALB
 -	So go to your EC2 console
-•	click on load balancers
-•	select the newly created ALB
-•	Then copy it DNS by clicking on the little copy
-then go to where you pasted the command and place your LB and DNS within the red line.
-Then copy the whole command and run it in your terminal.
-Ideally instead of putting the DNS of the load balancer you should put your domain name such as facebook.com or netflix.com
-now in a few minutes, we shall see that this scale out alarm would trigger immediately and will reach an alarm state as shown in the cloud match alarm section
--	go now to auto scaling and go to the events section in our cluster
--	then go to task and see what is going on there. Tast is getting created way task
--	Then go to service and click on metrics to see how matrix is going up
--	We can see the task number got changed from 1 to 2 Due to auto scaling out event and vice versa on scale up or scale down events.
-Now if you have many instances it will be pretty difficult to be taking each instance and then monitoring it alarm. That is why we want to create a dashboard and add the created alarms to the dashboard so that we can easily verify them on the dashboard level for monitoring.
-In order to do that, access cloudwatch console
--	Then you go to all alarms
+- click on load balancers
+- select the newly created ALB
+- Then copy it DNS by clicking on the little copy
+- then go to where you pasted the command and place your LB and DNS within the red line.
+- Then, copy the whole command and run it in your terminal.
+- Ideally instead of putting the DNS of the load balancer you should put your domain name such as **facebook.com** or **netflix.com**
+- Now, in a few minutes, we shall see that this scale out alarm would trigger immediately and will reach an alarm state as shown in the CloudWatch alarm section
+-	Go now to Auto-Scaling and go to the "Events" section in our cluster.
+-	Then, go to task and see what is going on there. Task is getting created way task
+-	
+-	Then go to service and click on metrics to see how matrix is going up.
+-	We can see that the task number got changed from 1 to 2 due to Auto-scaling-out event and vice versa on scale-up or scale-down events.
+- **Now, if you have many instances it will be pretty difficult to be taking each instance and then monitoring it alarm. That is why we want to create a dashboard and add the created alarms to the dashboard so that we can easily verify them on the dashboard level for monitoring.**
+- 
+- In order to do that, access **CloudWatch Console**
+-	Then you go to "all alarms"
 1)	- Then select any alarm you want (scale-in-alarm)
--	Then click on actions on the top right
--	now select click on “add to dashboard” that populate after you clicked on actions
-Since we don't have a dashboard yet, on the page the pops up after you had clicked on add to dashboard” on the left you will see “create new dashboard”
--	name of the dashboard ecs-demo-asg-alarms-dashboard
--	then you click on create
--	widget type (line….)
+-	Then click on "Actions" on the top right
+-	Now, select by clicking on “Add to dashboard” that populate after you clicked on actions.
+-	
+- Since we don't have a dashboard yet, on the page the poped up after you had clicked on "add to dashboard” on the left you will see “**create new dashboard**”
+-	Name of the dashboard **ecs-demo-asg-alarms-dashboard**
+-	then you click on "create"
+-	widget type [line….]
 -	customized widget title
-(scale-in-alarm)
+  - [scale-in-alarm]
 -	Click now on add to dashboard”
-2)	now let's go to scale out alarm and click on it to
--	click on action after selecting the scale out alarm
--	select a dashboard: ecs-demo-asg-alarms-dashboard
--	widget type: line
--	customized widget title: scale-out-alarm
--	click now on “ add to dashboard”
-Now go to the top left and under dashboard” and click on ”ecs-demo-asg-alarms-dashboard”
-As we are done with the auto scaling demo, we can stop the Apache bench process by pressing control C or command C when your terminal is up.
-Now do exit 2 come out of that particular container. But if you do docker ps-a you will see that the container is still running with the name httpd-ab
--	to effectively kill the container do docker kill httpd-ab
+2)	Now, let's go to **scale-out-alarm** and click on it too.
+-	click on "Action" after selecting the scale-out-alarm
+-	select a dashboard: **ecs-demo-asg-alarms-dashboard**
+-	widget type: **line**
+-	customized widget title: **scale-out-alarm**
+-	click now on “Add to Dashboard”
+-	
+- Now go to the top left and under "Dashboard” and click on ”**ecs-demo-asg-alarms-dashboard**”
+- 
+- As we are done with the Auto-scaling demo, we can stop the Apache bench process by pressing **control + C** or **command + C** when your terminal is up.
+- Now do "exit" to come out of that particular container. 
+- But if you do `docker ps-a`, you will see that the container is still running with the name **httpd-ab**
+-	To effectively kill the container do `docker kill httpd-ab`
 -	now verify if the containers are still running by doing this command “ docker ps-a”
-Now as we are done deleting the container, let's go to the cloud formation console and delete both the
-Ecs-demo-fargate cluster stack and the
-Ecs-demo-vpc-ecs-alb stack to save cost.
-1)	Delete the ECS- demo-fargate first
+- Now as we are done deleting the container, let's go to the CloudFormation console and delete both the **ecs-demo-fargate cluster** stack and the **ecs-demo-vpc-ecs-alb** stack to save cost.
+- 
+1)	# Delete the ECS- demo-fargate first
 -	Cloudformation console
 -	Stacks
--	Select ecs-demo-fargate
+-	Select "ecs-demo-fargate"
 -	Delete
-2)	Delete the ecs-demo-vpc-ecs-alb
+2) **Delete the ecs-demo-vpc-ecs-alb**
 -	Cloudformation console
 -	Stacks
--	Select ecs-demo-vpc-ecs-alb
+-	Select "ecs-demo-vpc-ecs-alb"
 -	Click on ‘delete”
 -	Confirm delete.
-So we have successfully completed Section 2 which has to do with load balancing and auto scaling with ECS.
+- So we have successfully completed Section 2 which has to do with Load Balancing and Auto-Scaling with ECS.
+- 
+- # Load Balancer ------> Listerner --------> Target Group (T1, T2, T3).
+- **Listerner** is used to connect the Load Balancer to the Target Group.
+- **How do you integrate the Load Balancer to the Target Group, in such a way that, whenever there is traffic coming into the Load Balancer, that traffic will be routed to the Target Group?**
+- You will use a Listerner for that. In the Listerner, you will mention the details e.g on what port? example port 80, you will direct it to the TG. While port 443 for example; if some traffic hit port 443, you should direct it to the TG. So, in the Listerner, you will mention the Port Number. **OR**
+- If somebody hit this path, your LB will send itt request to that particular Target Group and some other Task or Containers or pods or EKS.
 
-Set up CICID pipeline  for AWS ECS Deployment for both rollout and blue/green 
+# Set up CICID pipeline  for AWS ECS Deployment for both Rollout and Blue/Green 
 
