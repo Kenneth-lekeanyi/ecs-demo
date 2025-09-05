@@ -1119,4 +1119,437 @@ so,
 - If somebody hit this path, your LB will send itt request to that particular Target Group and some other Task or Containers or pods or EKS.
 
 # Set up CICID pipeline  for AWS ECS Deployment for both Rollout and Blue/Green 
+- •	Documentation link is
+https://docs.google.com/document/1ustL6+y2i6ndyrwNK7U5Q1Ov4syCK7LS/edit
+•	Then the final Github link that we should clone is here below so clone this final repo
+https://github.com/cvamsikrishna11/ecs-demo
+delete the other repos and clone this final Repo.
+With this repo consider it coming from the developer. So  you then clone in into your local Git as a Devops Engineer. And immediately you the Devops Engineer clone the code into your local Git, you will start to add your own fractures there such as Dockerfile, Buildspec.yml, infra.yml etc. inorder to add it to the base code that was sent to you by the Developer.
+Once you have done so, you will do now do the git in order to add the code or add the combination of what the Developer sent to you and whatever you have build to your local git staping area.
+So you will do 
+-	Git status
+-	Git add
+-	Git commit-in “ commit message”
+-	Git push ( This will finally push the changes and the configure file to the central repository which is codecommit).
+Immediately as the code drops in codecommit the build git started immediately, (as cloudwaqtch triggers the event to provock codepipeline which triggers codebuild to start the building process immediately).
+So you as the Devops Engineer must have prepared the groundwork fig building your Dockerfile and your Buildspec so much so that when you push it to codecommit from your staging area the building processes are initiated and goes into effect immediately.
+In the codebuild, whatever you specified in the buildspec.yml file will be build here. Any specification such as doing some sonarquebe checking, lambda function, building the image etc is done here at the level of codebuild. When it is done an image of that code will be sent to the ECR  for version storage while the latest version will be sent to the deployment stage taking place in the ECS cluster.
+But before it gets to the cliuster we can configure it to go through the rollout process as well as also the Blue-green process, taking place between codebuild and the ECS cluster.
+Codebuild is using a file called Buildspec.yml that you have build to do the action one-after-the other that you have mentioned or prescribed in the buildspec.yml command. So this buildspec.yml file is nothing but a group of share commands grouped and arranged together 1-by-1
+•	In term of prices, codebuild charges us depending on the resources that it is running.
+For Disaster Recovery
+Read more about blue/green deployment here
+https://www.proud2becloud.com/ecs-deployment-strategies-reduce-downtime-and-risk-with-blue-green-deployment/
+Concerning deployment from codebuild to the ECS, as compared to the EKS where we ran some commands such as Kubectle apply-f kubect/manifest. This ECS has native intergration between codebuild and the ECS cluster Wherein we initiated it in the console and we can further configure the roll out and a blue/ green stage after code build define the deployement gets to the ECS cluster.
+So in the deployment stage we have 2 types of deployments
+1)	Rollout deployment
+2)	Blue/Green deployment
+Wherein all this build from codebuild , codepipeline will either use one of then to deploy it either of the individual services found in the ECS cluster which is sealed within a VPC.
+For all there to happen, we need some IAM Roles wherein it will provide enough flexibility for all the codecommit and codebuild to interact with each other. Basically, codebuild needs some roles attached to if for it to be able to push it created or generated images to the ECR repository.
+Finally when ever these services are using inside the cluster, task will be constandly pushing some logs to cloudwatch, so that if there is any issue such logs will indicate in the cloydwatch Dashboard coming from Task within the cluster at the tail end.
+•	The ECS cluster carrying those 2 services are found or are embedded within a vpc for the simple reason that the cluster is the core part of our architexture or project. It carries our application it courses our task, container definition where our application is deployed and its researching in there.
+So it is better and best dor us to protect it inside our VPC, that is why we have our VPC configure all with it subnet, NATGW etc in our buildspec.yml file. For security and best practices purposes.
+That set: Open this Github link of final Repo https://github.com/cvamsikrishna11/ecs-demo and clone or download the Github project and put it in your machine.
+Now let start:
+Step one 
+1)	Let create our IAM user codecommit git credentials: create IAM credential to your IAM user which can be use to push the application code for AWS codecommit
+So go to IAM console
+-	Click on “Users”
+-	Either you create a new user by clicking on “Add user” or you click on the IAM user that you are using all through.
+•	Make sure that your user has administration. Access
+-	If you are creating a new user after clicking on “add user”
+-	Name of the user
+-	Give him some priviledges and “next”
+-	Then under permission click “ attach existing policies directly”.
+•	Then select “administrator access”
+-	After clicking on the user and ensuring that your user have administrator access;
+-	then click on security credentials”
+-	Scroll down to locate “https Git credentials for code commit”
+-	then under this click on generate credentials”
+-	then you make sure you download the credentials and save somewhere you can locate it
+if your user already have the credentials that you created some time back, still click on “generate credentials” so that those credentials will pop up.
+You can then click on download credentials to download and save them somewhere.
+Not that if someone wants to contribute to the pipeline or building or doing anything in the pipeline which you recognize you have to share this credentials with the person for him or her to be able to contribute to the pipeline.
+-	Then click on close”
+so we have successfully created our git credentials. Now as we have successfully had our credentials we move to the next step.
+Step two: Set up code commit repo and push the code to code commit repository 
+so that we can put on code base in the code commit repository.
+•	So search engine to search for code coming
+-	click on code commit
+-	click on repositories
+-	click on “create repository”
+repository name: ecs-cicd-demo-repo
+descriptions: repo to store the application code for the ECS cicd demo.
+-	Click now on create
+Successful
+-	after successfully creating this code commit repository, the next thing you have to do is to clone this repository and take it to your local staging area. To do that still in the repository where you have successfully created, do;
+-	Locate Step 3: clone the repository
+-	click on the copy button to copy this repo
+•	then you take it to your terminal ( for mac)
+-	so open your terminal
+-	paste the cloned repo that you just copied from code commit and hit enter
+-	It will prompt you to enter the code commit credentials. So go to where you stored the credential and copy them. 
+Pass the _username
+                  -password
+- It will show you that you just come on empty repository
+- go to your location finder-owner you will see it there
+at this time we are going to push the application based code and the files that we the DevOps engineer prepared or build into the empty just created code commit repository.
+So let's copy the files from our GitHub repo folder (ecs-demo) to the newly created code commit repo.
+Note here that as a DevOps engineer we will have to create our own code files and add to what the developer sent to us to form 1 repo.
+But for this demo we are using the already created files to save time. That is a reason why we are copying from our local GitHub folder to the new code commit folder
+•	the ECS demo file that I clone from this repository
+https://github.com/cvamsikrishna11/ecs-demo
+Is seated inside the downloads directory. Open it and copy the files in there. Copy all the files except the file titled as .git (Some people will have this git why others will not have it)
+•	now open the newly created empty code commit folder (ecs-cicd-demo-repo) That we clone to our local and paste it there. As you can see a file .git already exist in there, as this is a git repository.
+•	Then open the ecs-cicd-demo-repo in your VS code.
+Now open the dockerfile explanation here
+docker file
+# FROM nginx
+FROM public.ecr.aws/nginx/nginx:/latest
+Copy app/user/share/nginx/html/
 
+
+
+
+
+•	When younopen this application code in your v.s code, save it first.
+_ When you open the application code in your VS code locate “terminal” up at the taskbar and click on it to open it.
+-	Then click on “new terminal”
+•	on the terminal that you just open on the VS code, You will see your course so blinking on the path of ecs-cicd-demo repo>
+Now it is time to push the code to the code commit repository. And to do that we have to execute the gift commands
+1)	execute the first command to check the status and to check this current status of the changes do
+git status. It will show you in red the files that you are to be added
+2)	Add all these new files or changes to the git staging area or environment. Do this command
+Git add.
+3)	Now add the commit message and connect it to your staging area through this command in order to completely save it.
+Git commit-m “adding codebase to codecommit repo”
+4)	Now push the changes to the central code commit repository in code commit using the command
+Git push—set-upstream origin master
+Note the push action will prompt you to provide codecommit credentials which we have created earlier. If so then enter the code commit username and password
+•	Once the above steps are completely successful verify it by accessing the code commit console
+-	Go to code commit
+-	click on repositories”
+-	you will see the ecs-cicd-demo-repo” Code and when you click on it you will see all what has been added.
+So this is called essential repository where all the developers and DevOps engineers can see all the files that has been added here.
+With this we have successfully completed the code set up part of our pipeline
+The next step will be to first of all create an ECR repository. As you remember, the ECR repository is where the build is happening inside the code build, the images will be pushed to the ECR repository.
+Step three: setup the codebuild projects.
+Here we are going to set up a code build project to build an application, create docker image and store it in the ECR repository.
+But before that we have to first create an ECR repository. So access the ECR console.
+-	Then click on repositories
+-	then click on create repository
+still on this create repository page keep all the default details as it is and fill repo name.
+-	general setting
+visibility settings
+private
+-	repository name:ecs-demo-cicd-repo
+-	Click on create repository at the bottom of the page. With this we have successfully created the ECR repo, which we will use during our cicd setup to push docker images to it for storage of these images.
+Step four:setup IAM role for Codebuild
+Here we are going to create a policy that will be used for the code build to interact with other AWS services as part of the CICD pipeline.
+So go to IAM console.
+And before we go to create an IAM role 1st we need to create a policy.
+-	Therefore under IAM , click on “policies”
+-	Then click on “create policy”
+-	Now on the create policy page, you will see to petite sections visual editor and Json.
+-	Click to select “Json” on clear all the existing script in there
+-	now replace our custom policy in this editor under Json with the policy you find in this link.
+https://github.com/cvamsikrishna11/ecs-demo/blob/master/help/iam-policy-ecs-demo-codebuild.json
+So copy this policy here in this link and take it to the create policy page under Json.
+paste the policy there.
+-	Click now on “next:tags”
+-	Then click on review
+-	Review policy
+Name: iam-policy-ecs-demo-codebuild
+Description: IAM policy used for codebuild to interact with other AWS services as part of the ECS-demo
+-	Now click on create policy
+Policy IAM has been created
+as we are done with the policy, the next step is to create a role, so that we can attach this policy to a rule
+•	now create an IAM role and attaches policy for that role so that cold build can utilize the attach role and policy permission.
+So go again to IAM console.
+-	Click on roles
+-	click again on create role”
+-	select trusted entity type
+select AWS services
+use cases for other AWS services.
+CODEBUILD
+-	click on “next”
+-	add permission
+Search on the search bar for the policy that I created with the name as iam-policy-ecs-demo-codebuild
+-	click on “next”
+-	review
+-	role details
+-	role name: iam-role-ecs-cicd-demo-codebuild
+-	secription: allows codebuild to call AWS services on your behalf
+-	click now on “create role”
+With the above steps we're done setting up the required role for the code build service.
+The next step will be to set up code build
+
+Step five: setup code build project
+now we are going to set up the code build project to build, create docker image and push the image to the ECR repo.
+So log into or go to your code build console
+-	click on build project”
+-	then you click on create build project”
+-	project configuration
+project name: ecs-cicd-demo-codebuild
+descripcion: codebuild project to build the ECS demo application and push image to the ECR repo.
+-	Source
+Source provider
+•	AWS Codecommit
+•	ECS-cicd-demo-repo
+-	Reference type
+Branch
+-	Branch
+Master
+-	Environment
+-	Environment image
+Select this section in “ managed image”
+-	Operatinf system 
+Amazon linux2
+-	Runtime
+Standard
+-	Image
+Aws/codebuild/amazonlinux2-x86-64-standard:3.0
+-	Image version
+Always use the latest image for this runtime version
+-	Environment type
+Linux
+-	Priviledge
+Enable this flag if you want to build Docker image or want your builds to get elevated priviledges.
+-	Service role
+Click to select O “ existing service role”
+-	Role ARN
+Q arn:aws;iam::46599248654:role-ecs-demo-codebuild x
+Allow AWS codebuild to modify this services role so it can be used with this build project.
+If you want to choose a VPC that you want your cold build to access you can do that under additional configuration
+And in the same light if you want your computer power to have a certain GB of memory and a certain VCPU, You can also choose that under additional configuration.
+But this demo is not doing anything under additional configuration so go to Buildspec. But let's free environment variable under add C.
+Click on additional configuration”
+then you Scroll down to locate environment variable
+-	environment variables
+name                           value                                                                                    type
+repository URI       464599248654.dkr.ecr.us-east-1.amazon….      plaintext
+Buildspec
+-	Build specifications
+use a build spec file
+-	build spec name
+build spec.yml
+-	cloud watch
+cloud watch locks
+-	click on create build project”
+with the above steps completed we cannot see that the new code build project has been created.
+Explanation here
+not that you're file name to be used in bluild spec could be anything. But with a yml extension. In these our application we are using buildspec.yml
+study this buildspec.yml file at this link
+https://github.com/cvamsikrishna11/ecs-demo/blob/master/buildspec.yml
+after successfully creating they build or cold build project, let's proceed at this time to start the build.
+-	So click on “start build”
+you will then see that they build has been initiated immediately
+once the build has started and completed successfully, we can see the build status and success message
+then we can now go to the ECR repo and you will see the created docker image there having the latest version.
+-	You will see a blank bar saying ‘showing the last 1000 lines of the build log. View entire log
+if you click on this view entire log it would directly take you to the cloud watch by group if you take open link in a new tab”
+(it is that role that facilitate the locks to be pushed to cloud watch)
+from the image we are seeing in the ECR repo, we notice that we just only created the repository and everything is being pushed to this repository automatically.
+Step six: set up code pipeline to orchestrate the stages
+Note: 
+1)	this section (code pipeline) has a despondency to create the VPC stack.
+We have already said our VPC using IAC in this link
+https://github.com/cvamsikrishna11/ecs-demo/blob/master/infra/vpc-alb-ecs.yml
+2)	This section (code pipeline) also has a descendancy to create an ECS cluster, service and tax stack.
+We have already also said these dependencies using IAC in this link below
+https://github.com/cvamsikishna11/ecs-demo/blob/master/infra/fargate-service-task.yml
+In this section, the goal is to create the code pipeline to integrate all the other AWS services that are required for this ECS-DEMO-CICD PIPELINE.
+Let's start by going to the AWS code pipeline console
+1)	go to cloud formation and ensure that you still have our stock and to create our VPC stack
+-	cloud formation console
+-	click on stacks
+-	click on create stack”
+with new resources (standard)
+-	prepare templates
+template is ready
+-	template source
+upload a template file
+-	upload a template file
+choose file
+-	ECS-demo or ecs-cicd-demo repo select any of these especially the ecs-cicd-demo-repo that we already created
+-	Infra
+-	VPC-alb-ecs
+-	click now on open
+•	click on next”
+•	stack name: ecs-demo-vpc-ecs-alb
+•	click on next”
+•	click again on next”
+•	review
+click on “create stack”
+as you can see our stack has been created
+2)	now let's proceed to create another stack for our fargate services
+so still go to cloud formation console
+-	click on stock
+-	create stack
+with new resources (standard)
+-	prepare template
+template is ready
+-	template source
+upload a template file
+-	upload a template file
+choose file
+•	select ecs-cicd-demo -repo
+-	infra
+-	fargate service task
+-	click on open
+•	click now on next
+•	stock name: ecs-demo-fargate
+•	click on next”
+•	click again on next”
+•	review
+click on create stack”
+you can verify to see the load balancer by going to EC2 console
+let's now start with our actual work on set up the code pipeline 
+so go to the code pipeline console
+-	click on create pipeline”
+-	name of the pipeline: ecs-demo-cicd-codebuild
+service role
+news service rule
+-	advanced settings : allow AWS codepipelines to create rule so it can
+-	Artifacts store
+default location
+-	encryption key
+default AWS managed key
+-	click on next"
+-	add source stage
+•	source provider
+AWS code pipeline
+•	repository name
+ECS-CICD-DEMO-REPO
+•	branch
+master
+•	change detection options
+Amazon cloud watch event
+•	output artifact format
+code pipeline default
+•	click on next
+•	add build stage
+-	bill provider
+o	AWS code build
+-	Region
+US east (N. Virginia)
+-	protection name
+ecs-cicd-demo-code build
+-	build type
+single build
+-	click on next”
+-	add diploid stage
+-	diploid provider
+Amazon ECS
+-	region
+US east (N Virginia)
+-	cluster name
+ECS-DEMO-SERVICE
+-	image definition file
+imagedefinitions.Json
+-	click on next”
+-	review
+-	click then on create pipeline”
+with the above action, we can see that code pipeline will be created and will start the first build automatically.
+a)	An we can access the current build details by creating on the details” icon in the build stage directly below “succeeded”
+b)	go to deploy on under in progress” you will see details”. Click on such details
+once you click on this Detail” you will be directed to the concern ECS service and employment section, where we can verify the deployement process.
+So click on ecs-demo-service
+-	then click on the deployments between ASC and Metrics
+c)	If you click on task, you should be able to see two extra task that has been added to the existing 2 task to make the new deployment without any issues.
+d)	After a few minutes, if everything is smooth and tasks are up and running, ECS service will delete the old task That are running and keep the newly diploid task as it is. We can see it by refreshing the same task screen after a few minutes.
+e)	Now also verify if the newly created task definition revision has the docker container image that was created as part of the CI CD pipeline and push through the ECR, so then let's click on the “task definition” as shown below
+f)	on task definition page, go through the new revision” and go to the container section on under the container image section, we should be able to see the container image URL
+so go to the ECR console, then click on the ecs-demo-cicd-repo and compare the latest image to see if the container tags are matching.
+We can see that both the container definition and the ECR image have the same tags, by which we can understand the CI CD pipeline is automatically updating the ECS Container definition to place the latest docker image.
+g)	And lastly if we access the ecs-demo-cluster and go to ecs-demo-service and then go to “events” we can see all the events that are happening in that cluster related to deployements: scale in, scale out etc
+now inject some changes into the application code and see what happens at the level of the application UI after pasting our LB.URL
+So we are going to inject some changes and then we push it to the pipeline.
+To introduce this change,
+open the VS code (which we are using to interact with the code commite). Then on your VS code, open the application base code (ECS-CICD-DEMO-REPO) Where you have all your files in there.
+-	Now open the “app” folder
+inside this app folder, we have the index.html. (This indexhtml is whatever that you are seeing in the user interface UI when you paste the LB on the browser).
+Inside this index.html, inject the following
+<h3> App version-1.2.0<h3>
+<h3>deployment from the codepipeline demo and we are gonna discuss rollout deployments</h3>
+•	Now bring your VS code terminal
+-	Check the status by our changes by doing
+git status
+-	no add the changes
+git add.
+Git add app/index.html
+-	Now committe changes to your local staging area through
+git commit-m “diploying version 1.2.0”
+If you now do git status, you will see that one file has changed an it has gotten to the master branch.
+-	Now push our staging area to the central repository that is code commit
+git posh
+if it's prompt that you enter the code commit credentials, then just go to the code commit credentials that you downloaded and grab them to pass them here in
+-	Username
+-	Password
+•	now go to the code pipeline console. You will see that the cold pipeline has been triggered (to deploying version 1.2.0)
+•	If you go to code build console and click on build project you will see the build status saying “in progress”
+•	if you go to code commit console can you click on commit, you will see the changes with just made
+•	now go to code build console to see the build log
+•	now go to the code pipeline console
+-	click on pipeline
+-	Scroll down to the diploy
+-	then click on details. This will direct you to the details part of the deployment
+-	then under deployement you will see that 
+minimum healthy person is 100
+maximum person is 200
+desired count 2 under primary are running which 
+two under active are running
+The old task have older revision while the new task have current revision
+what is happening in the roll out is that when the minimum person is 100 ,
+maximum healthy person is 200
+then they desired count has 2
+which active running is 2
+very soon the order tax will get killed and ruled out why the current number of task continue to run. When did diplomat has reached its steady state.
+That is a reason why you see desire counts as 2 why running count stance at 4. So that in few minutes it would dismantle the old tasks and maintain the current tasks. 
+So that when there is any change it will not encounter any downtime. Simply because as the old task gets rolled out, the current tasks are already running perfectly
+-	if our service or desire counts is 2
+wherein our minimum healthy percentage is 100%
+then how many task should we always have? 2 task
+which means at any given point in time, we should and will always have at least two tasks running
+•	now it also says maximum percentage of healthy tax is 200%.
+Then it means how many tasks should we always have? 4 tasks
+which now means that at any given point in time, It will always have a maximum of 4 tasks running.
+Number of service and desire counts is 2
+so using the minimum percentage at 100% will always keep the task running at 2 task and using the maximum percentage of 200% will always keep the task running at 4 tasks
+service-desired count 4
+minimum health percentage 50%
+maximum health percentage 100%
+Following this therefore anytime that there is a deployement, A new image is being created and why that new image is being pushed to the stored in the ECR repo, a version of that new images is being deployed in to the ECS cluster.
+While a version of that new version will be stored in the ECR repository.
+Question: What is the task that keep created or generated by service is constantly  encounting some bugs?
+What is the tax that is being generated by service is constantly reporting having bugs that one tasks are created, the box contain to abstract it perfect functionality of the deployment?
+In this situation you will have no choice but to rule the latest image in the repo we're in
+in this situation you have two choices:
+1)	either you will rollback to your changes in your git staging area or you get to the code commit repository and grab the version of this application base code and do a new pipeline or
+2)	You get to the ECR repo take the image URI (maybe the latest version)or (the older version) you take it and run the pipeline. So that this version will do the deployement in the cluster as a new version. That is a reason we keep the version of the images stored in the ECR so as to grab it whenever you want and deploy it.
+How do you do this?
+You simply go to code pipeline console
+-	click on pipeline
+-	click on create pipeline”
+-	pipeline name: input the name
+-	click on next”
+-	source
+Here it will ask you the source of the image if you want to introduce the older version of the image, then select Amazon ECR
+and if you want to introduce the application based code as your roll back to eliminate the bug from codecommit repository, then select AWS codecommit
+If you want to only use the older version of tasks to do the deployement, first copy the tasks of that particular task version from task (which looks something like this)
+2022-04-13.00.43.26.16339c43
+So that when you get to the source” page here you just paste the task tag there and proceed to deploy it.
+When the deployement reach a strategy state the number stated in the minimum will get terminated why the maximum number in maximum health takes effect.
+This is how they roll out deployment strategy works it is very advantageous because it's generate new task whenever there is a new diploment within any downtime.
+That is a reason why when it is running you will see the running count under (ecs-cluster-tasks) As 4 when did desire count stands at 2
+Desired count: 2
+pending count:0
+running count:4
+this is because under the deployement we specified
+Rolling update
+this is because by default, AWS ECS deployment runs on a rollout which is a rolling update.
+So rolling update deployment is the default deployment in the ECS service.
+With this we have completed the CI CD demo flow with roll out update type deployment and we understand what is rollout type, how to use AWS codepipeline native integration with ECS deployments.
+We shall now go to see how to set up the Blue/green deployment.
+
+# BLUE/GREEN DEPLOYMENT STRATEGY
