@@ -1118,70 +1118,85 @@ so,
 - You will use a Listerner for that. In the Listerner, you will mention the details e.g on what port? example port 80, you will direct it to the TG. While port 443 for example; if some traffic hit port 443, you should direct it to the TG. So, in the Listerner, you will mention the Port Number. **OR**
 - If somebody hit this path, your LB will send itt request to that particular Target Group and some other Task or Containers or pods or EKS.
 
+
 # Set up CICID pipeline  for AWS ECS Deployment for both Rollout and Blue/Green 
-- •	Documentation link is
-https://docs.google.com/document/1ustL6+y2i6ndyrwNK7U5Q1Ov4syCK7LS/edit
-•	Then the final Github link that we should clone is here below so clone this final repo
-https://github.com/cvamsikrishna11/ecs-demo
-delete the other repos and clone this final Repo.
-With this repo consider it coming from the developer. So  you then clone in into your local Git as a Devops Engineer. And immediately you the Devops Engineer clone the code into your local Git, you will start to add your own fractures there such as Dockerfile, Buildspec.yml, infra.yml etc. inorder to add it to the base code that was sent to you by the Developer.
-Once you have done so, you will do now do the git in order to add the code or add the combination of what the Developer sent to you and whatever you have build to your local git staping area.
-So you will do 
--	Git status
--	Git add
--	Git commit-in “ commit message”
--	Git push ( This will finally push the changes and the configure file to the central repository which is codecommit).
-Immediately as the code drops in codecommit the build git started immediately, (as cloudwaqtch triggers the event to provock codepipeline which triggers codebuild to start the building process immediately).
-So you as the Devops Engineer must have prepared the groundwork fig building your Dockerfile and your Buildspec so much so that when you push it to codecommit from your staging area the building processes are initiated and goes into effect immediately.
-In the codebuild, whatever you specified in the buildspec.yml file will be build here. Any specification such as doing some sonarquebe checking, lambda function, building the image etc is done here at the level of codebuild. When it is done an image of that code will be sent to the ECR  for version storage while the latest version will be sent to the deployment stage taking place in the ECS cluster.
-But before it gets to the cliuster we can configure it to go through the rollout process as well as also the Blue-green process, taking place between codebuild and the ECS cluster.
-Codebuild is using a file called Buildspec.yml that you have build to do the action one-after-the other that you have mentioned or prescribed in the buildspec.yml command. So this buildspec.yml file is nothing but a group of share commands grouped and arranged together 1-by-1
-•	In term of prices, codebuild charges us depending on the resources that it is running.
-For Disaster Recovery
-Read more about blue/green deployment here
-https://www.proud2becloud.com/ecs-deployment-strategies-reduce-downtime-and-risk-with-blue-green-deployment/
-Concerning deployment from codebuild to the ECS, as compared to the EKS where we ran some commands such as Kubectle apply-f kubect/manifest. This ECS has native intergration between codebuild and the ECS cluster Wherein we initiated it in the console and we can further configure the roll out and a blue/ green stage after code build define the deployement gets to the ECS cluster.
-So in the deployment stage we have 2 types of deployments
-1)	Rollout deployment
-2)	Blue/Green deployment
-Wherein all this build from codebuild , codepipeline will either use one of then to deploy it either of the individual services found in the ECS cluster which is sealed within a VPC.
-For all there to happen, we need some IAM Roles wherein it will provide enough flexibility for all the codecommit and codebuild to interact with each other. Basically, codebuild needs some roles attached to if for it to be able to push it created or generated images to the ECR repository.
-Finally when ever these services are using inside the cluster, task will be constandly pushing some logs to cloudwatch, so that if there is any issue such logs will indicate in the cloydwatch Dashboard coming from Task within the cluster at the tail end.
-•	The ECS cluster carrying those 2 services are found or are embedded within a vpc for the simple reason that the cluster is the core part of our architexture or project. It carries our application it courses our task, container definition where our application is deployed and its researching in there.
-So it is better and best dor us to protect it inside our VPC, that is why we have our VPC configure all with it subnet, NATGW etc in our buildspec.yml file. For security and best practices purposes.
-That set: Open this Github link of final Repo https://github.com/cvamsikrishna11/ecs-demo and clone or download the Github project and put it in your machine.
-Now let start:
-Step one 
-1)	Let create our IAM user codecommit git credentials: create IAM credential to your IAM user which can be use to push the application code for AWS codecommit
-So go to IAM console
--	Click on “Users”
+-
+# -------> Explanation Here ---------->
+- The final Github link that we should clone is here below. so, clone this final repo: https://github.com/Kenneth-lekeanyi/ecs-demo
+- Delete the other repos and clone this final Repo.
+- 
+- **With this repo consider it coming from the Developers. So,  you then clone it into your local as a Devops Engineer**.
+- And immediately you (the Devops Engineer) clone the code into your local, you will start to add your own features there such as;
+  1) **Dockerfile**,
+  2) **Buildspec.yml**,
+  3) **infra.yml**
+  4) **appsspec.yml**
+  5) **taskdef.json** etc.
+- Inorder to add it to the base code that was sent to you by the Developer.
+- Once you have done so, you will now do the "git add" in order to add the combination of what the Developer sent to you plus whatever you have build in your local staging area to the cetral repository.
+- So, to push it to the central repository, you will do 
+  - `git status`
+  - `git add .`
+  - `git commit -m “commit message”`
+  - `git push` ***{This will finally push the changes and the configure files to the central repository which is CodeCommit}***.
+- Immediately as the code drops in CodeCommit, the build get started immediately, (as cloudwaqtch triggers the event to provock CodePipeline which triggers CodeBuild to start the building process immediately).
+- So, you as the Devops Engineer must have prepared the groundwork by building your **Dockerfile** and your **Buildspec**, so much so that, when you push it to CodeCommit from your staging area the building processes are initiated and goes into effect immediately.
+- In the CodeBuild, whatever you specified in the **buildspec.yml** file will be build here. Any specification such as doing some sonarquebe checking, lambda function, building the image etc is done here at the level of codebuild.
+- When it is done an image of that code will be sent to the ECR  for version storage while the latest version will be sent to the deployment stage taking place in the ECS cluster.
+- But, before it gets to the cluster, we can configure it to go through the rollout process as well as also the Blue-green process, taking place between CodeBuild and the ECS cluster.
+- Codebuild is using a file called **Buildspec.yml** that you have build to do the action one-after-the other that you have mentioned or prescribed in that **buildspec.yml** command. So this buildspec.yml file is nothing but a group of share commands grouped and arranged together 1-by-1
+- In term of prices, CodeBuild charges us depending on the resources that it is running.
+
+# Read more about blue/green deployment here: (https://www.proud2becloud.com/ecs-deployment-strategies-reduce-downtime-and-risk-with-blue-green-deployment/)
+- Concerning deployment from codebuild to the ECS, as compared to the EKS where we ran some commands such as `Kubectle apply -f kubect/manifest`. ***This ECS has native intergration between CodeBuild and the ECS cluster Wherein we initiated it in the console and we can further configure the roll-out and a blue/green stage after CodeBuild define the deployement gets to the ECS cluster.***
+- 
+- So, in the deployment stage we have 2 types of deployments
+1)	**Rollout deployment**
+2)	**Blue/Green deployment**
+- Wherein all this build from codeBuild ,CodePipeline will either use one of them to deploy it either of the individual services found in the ECS cluster which is sealed within a VPC.
+- For all these to happen, we need some IAM Roles wherein it will provide enough flexibility for all the CodeCommit and CodeBuild to interact with each other. Basically, CodeBuild needs some roles attached to it for it to be able to push it created or generated images to the ECR repository.
+- Finally, whenever these services are runing inside the cluster, task will be constandly pushing some logs to cloudwatch, so that if there is any issue, such logs will indicate in the cloudwatch Dashboard coming from Task within the cluster at the tail-end.
+- The ECS cluster carrying those 2 services are found or are embedded within a vpc for the simple reason that the cluster is the core part of our architexture or project. It carries our Application it carries our task, container definition where our application is deployed and its residing in there.
+- So, it is better and best for us to protect it inside our VPC, that is why we have our VPC configure all with it subnet, NATGW etc in our buildspec.yml file. For security and best practices purposes.
+# --------> End of Explanation --------->
+-
+***That set: Open this Github link of final Repository here: **https://github.com/Kenneth-lekeanyi/ecs-demo** and 
+- clone or download the Github project and put it in your local.
+- 
+- # Now let start:
+# Step one:
+# 1)	Let create our IAM user CodeCommit Git Credentials: create IAM credential to your IAM user which can be use to push the Application Code for AWS CodeCommit
+- So go to AWS IAM console
+-	Click on “**Users**”
 -	Either you create a new user by clicking on “Add user” or you click on the IAM user that you are using all through.
-•	Make sure that your user has administration. Access
--	If you are creating a new user after clicking on “add user”
--	Name of the user
+- Make sure that your user has "administration Access"
+-	If you are creating a new user, after clicking on “add user”
+-	Name of the user:
 -	Give him some priviledges and “next”
--	Then under permission click “ attach existing policies directly”.
-•	Then select “administrator access”
+-	Then under permission click on "Aattach existing policies directly”.
+- Then, select “Administrator Access”
 -	After clicking on the user and ensuring that your user have administrator access;
--	then click on security credentials”
--	Scroll down to locate “https Git credentials for code commit”
--	then under this click on generate credentials”
--	then you make sure you download the credentials and save somewhere you can locate it
-if your user already have the credentials that you created some time back, still click on “generate credentials” so that those credentials will pop up.
-You can then click on download credentials to download and save them somewhere.
-Not that if someone wants to contribute to the pipeline or building or doing anything in the pipeline which you recognize you have to share this credentials with the person for him or her to be able to contribute to the pipeline.
--	Then click on close”
-so we have successfully created our git credentials. Now as we have successfully had our credentials we move to the next step.
-Step two: Set up code commit repo and push the code to code commit repository 
-so that we can put on code base in the code commit repository.
-•	So search engine to search for code coming
--	click on code commit
--	click on repositories
--	click on “create repository”
-repository name: ecs-cicd-demo-repo
-descriptions: repo to store the application code for the ECS cicd demo.
--	Click now on create
-Successful
+-	then click on "security credentials”
+-	Scroll down to locate “https Git credentials for CodeCommit”
+-	then under this click on "generate credentials”
+-	***then you make sure you download the credentials and save somewhere you can locate it***
+- if your user already have the credentials that you created some time back, still click on “generate credentials” so that those credentials will pop up.
+- You can then click on download credentials to download and save them somewhere.
+
+# Note that, if someone wants to contribute to the pipeline or building or doing anything in the pipeline which you recognize, you have to share this credentials with the person for him or her to be able to contribute to the pipeline.
+-	Then click on "close”
+- So, we have successfully created our IAM User credentials. Now as we have successfully had our credentials we move to the next step.
+- 
+# Step two: Set up CodeCommit repo and push the code to CodeCommit repository: ***{so that, we can put our CodeBase in the CodeCommit Repository}***.
+- So, go to the search engine and search for "CodeCommit"
+  - click on "Codecommit"
+  - click on "repositories"
+  - click now on “create repository”
+  - repository name: **ecs-cicd-demo-repo**
+  - Descriptions: **repo to store the Application code for the ECS cicd demo.**
+  - Click now on "create"
+# -------> Successful ------->
+
 -	after successfully creating this code commit repository, the next thing you have to do is to clone this repository and take it to your local staging area. To do that still in the repository where you have successfully created, do;
 -	Locate Step 3: clone the repository
 -	click on the copy button to copy this repo
