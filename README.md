@@ -1197,175 +1197,186 @@ so,
   - Click now on "create"
 # -------> Successful ------->
 
--	after successfully creating this code commit repository, the next thing you have to do is to clone this repository and take it to your local staging area. To do that still in the repository where you have successfully created, do;
--	Locate Step 3: clone the repository
--	click on the copy button to copy this repo
-•	then you take it to your terminal ( for mac)
--	so open your terminal
--	paste the cloned repo that you just copied from code commit and hit enter
--	It will prompt you to enter the code commit credentials. So go to where you stored the credential and copy them. 
-Pass the _username
-                  -password
-- It will show you that you just come on empty repository
-- go to your location finder-owner you will see it there
-at this time we are going to push the application based code and the files that we the DevOps engineer prepared or build into the empty just created code commit repository.
-So let's copy the files from our GitHub repo folder (ecs-demo) to the newly created code commit repo.
-Note here that as a DevOps engineer we will have to create our own code files and add to what the developer sent to us to form 1 repo.
-But for this demo we are using the already created files to save time. That is a reason why we are copying from our local GitHub folder to the new code commit folder
-•	the ECS demo file that I clone from this repository
-https://github.com/cvamsikrishna11/ecs-demo
-Is seated inside the downloads directory. Open it and copy the files in there. Copy all the files except the file titled as .git (Some people will have this git why others will not have it)
-•	now open the newly created empty code commit folder (ecs-cicd-demo-repo) That we clone to our local and paste it there. As you can see a file .git already exist in there, as this is a git repository.
-•	Then open the ecs-cicd-demo-repo in your VS code.
-Now open the dockerfile explanation here
-docker file
+-	After successfully creating this CodeCommit repository, the next thing you have to do is to clone this repository and take it to your local.
+-	To clone this CodeCommit repo, while still in the repository where you have successfully created, do the following;
+-	Locate Step 3: "clone the repository"
+  - click on the "copy" button to copy this repo
+  - then you take it to your terminal (for mac)
+  - so open your terminal
+  - paste the cloned repo that you just copied from CodeCommit and hit enter
+  - It will prompt you to enter the CodeCommit credentials. So go to where you stored the credential and copy them. 
+  - Pass the Username:
+  - Pass the password:
+  - It will show you that you just cloned an empty repository
+- Now, go to your location **Finder**--->**Owner** you will see it there
+- At this time, we are going to push the Application Based Code and the files that we the DevOps engineer have prepared or build into the empty just created CodeCommit repository.
+- So, let's copy the files from our GitHub repo folder (**ecs-demo**) to the newly created CodeCommit repo.
+- Note here that as a DevOps engineer, we will have to create our own code files and add to what the developer sent to us to form 1 repo.
+- But for this demo we are using the already created files to save time. That is a reason why we are copying from our local GitHub folder to the new CodeCommit folder
+- the ECS demo file that I clone from this repository: https://github.com/Kenneth-lekeanyi/ecs-demo
+- It is seated inside the Downloads Directory. Open it and copy the files in there. Copy all the files except the file titled as .git (Some people will have this git while others will not have it)
+- Now, open the newly created empty CodeCommit folder (**ecs-cicd-demo-repo**) That we clone to our local and paste it there. As you can see a file .git already exist in there, as this is a git repository.
+- Then open the **ecs-cicd-demo-repo** in your VS code.
+- Now open the "Dockerfile"
+  -------> Explanation here ----->
+- **Dockerfile**
 # FROM nginx
-FROM public.ecr.aws/nginx/nginx:/latest
-Copy app/user/share/nginx/html/
+FROM: public.ecr.aws/nginx/nginx:/latest
+Copy: app/user/share/nginx/html/
+***{The reason we use this method is that Docker recently come up with some limitations that once you have pulled a certain limit of Docker images, you cannot exceed that limit. Reason why we go to the public ECR of AWS and pull this latest version of nginx. So, under Docker, if you are not logged into DockerHub to become a premier user, you cannot pull images after a certain limit has reached}***
 
-
-
-
-
-•	When younopen this application code in your v.s code, save it first.
-_ When you open the application code in your VS code locate “terminal” up at the taskbar and click on it to open it.
--	Then click on “new terminal”
-•	on the terminal that you just open on the VS code, You will see your course so blinking on the path of ecs-cicd-demo repo>
-Now it is time to push the code to the code commit repository. And to do that we have to execute the gift commands
-1)	execute the first command to check the status and to check this current status of the changes do
-git status. It will show you in red the files that you are to be added
+- When you open this Application code in your v.s code, save it first. ***(control+s)**
+_ When you open the Application code in your V.S code locate “terminal” up at the taskbar and click on it to open it.
+-	Then click on “New terminal”
+- On the terminal that you just open on the V.S code, You will see your cursor blinking on the path of **ecs-cicd-demo repo**
+- Now, it is time to push the code to the CodeCommit repository. And to do that, we have to execute the git commands;
+1)	Execute the first command to check the status and to check this current status of the changes do
+- `git status`. It will show you in red the files that you are to be added
 2)	Add all these new files or changes to the git staging area or environment. Do this command
-Git add.
-3)	Now add the commit message and connect it to your staging area through this command in order to completely save it.
-Git commit-m “adding codebase to codecommit repo”
-4)	Now push the changes to the central code commit repository in code commit using the command
-Git push—set-upstream origin master
-Note the push action will prompt you to provide codecommit credentials which we have created earlier. If so then enter the code commit username and password
-•	Once the above steps are completely successful verify it by accessing the code commit console
--	Go to code commit
+- `git add .`
+3)	Now, add the commit message and connect it to your staging area through this command in order to completely save it.
+- `git commit -m “adding codebase to CodeCommit repo"`
+4)	Now, push the changes to the Central CodeCommit repository in CodeCommit using the command
+- `git push --set-upstream origin master`
+- Note, the push action will prompt you to provide the CodeCommit credentials which we have created earlier. If so then enter the CodeCommit credentials;
+  - **Username:**
+  - ***Password:**
+- Once the above steps are completely successful verify it by accessing the CodeCommit console
+-	Go to CodeCommit
 -	click on repositories”
--	you will see the ecs-cicd-demo-repo” Code and when you click on it you will see all what has been added.
-So this is called essential repository where all the developers and DevOps engineers can see all the files that has been added here.
-With this we have successfully completed the code set up part of our pipeline
-The next step will be to first of all create an ECR repository. As you remember, the ECR repository is where the build is happening inside the code build, the images will be pushed to the ECR repository.
-Step three: setup the codebuild projects.
-Here we are going to set up a code build project to build an application, create docker image and store it in the ECR repository.
-But before that we have to first create an ECR repository. So access the ECR console.
--	Then click on repositories
--	then click on create repository
-still on this create repository page keep all the default details as it is and fill repo name.
--	general setting
-visibility settings
-private
--	repository name:ecs-demo-cicd-repo
--	Click on create repository at the bottom of the page. With this we have successfully created the ECR repo, which we will use during our cicd setup to push docker images to it for storage of these images.
-Step four:setup IAM role for Codebuild
-Here we are going to create a policy that will be used for the code build to interact with other AWS services as part of the CICD pipeline.
-So go to IAM console.
-And before we go to create an IAM role 1st we need to create a policy.
--	Therefore under IAM , click on “policies”
--	Then click on “create policy”
--	Now on the create policy page, you will see to petite sections visual editor and Json.
--	Click to select “Json” on clear all the existing script in there
--	now replace our custom policy in this editor under Json with the policy you find in this link.
-https://github.com/cvamsikrishna11/ecs-demo/blob/master/help/iam-policy-ecs-demo-codebuild.json
-So copy this policy here in this link and take it to the create policy page under Json.
-paste the policy there.
--	Click now on “next:tags”
--	Then click on review
--	Review policy
-Name: iam-policy-ecs-demo-codebuild
-Description: IAM policy used for codebuild to interact with other AWS services as part of the ECS-demo
--	Now click on create policy
-Policy IAM has been created
-as we are done with the policy, the next step is to create a role, so that we can attach this policy to a rule
-•	now create an IAM role and attaches policy for that role so that cold build can utilize the attach role and policy permission.
-So go again to IAM console.
--	Click on roles
--	click again on create role”
--	select trusted entity type
-select AWS services
-use cases for other AWS services.
-CODEBUILD
--	click on “next”
--	add permission
-Search on the search bar for the policy that I created with the name as iam-policy-ecs-demo-codebuild
--	click on “next”
--	review
--	role details
--	role name: iam-role-ecs-cicd-demo-codebuild
--	secription: allows codebuild to call AWS services on your behalf
--	click now on “create role”
-With the above steps we're done setting up the required role for the code build service.
-The next step will be to set up code build
+-	You will see the **ecs-cicd-demo-repo**” Code.
+-	And when you click on it you will see all what has been added.
+- So this is called a **Central repository** where all the developers and DevOps engineers can see all the files that has been added here.
+- 
+- **With this, we have successfully completed the Code setup part of our pipeline.**
+- The next step will be to first of all create an ECR repository. As you remember, the ECR repository is where the code that is built in is CodeBuild, is happening. The images will be pushed into this ECR repository.
+- 
+# Step three: setup the CodeBuild project.
+- Here, we are going to setup a CodeBuild project to build the Application, create docker image and store it in the ECR repository.
+- But before that, we have to first create an **ECR repository**. 
+- So access the "ECR console".
+-	Then click on "repositories"
+-	then click on "create repository"
+- still on this create repository page keep all the default details as it is and fill
+  - Repo name: 
+  - general settings:
+  - visibility settings:
+   - private: Click to check the box on [private]
+-	repository name: **ecs-demo-cicd-repo**
+-	Click on "create repository" at the bottom of the page.
+-	With this we have successfully created the ECR repo, which we will use during our cicd setup to push docker images to it for storage of these images.
 
-Step five: setup code build project
-now we are going to set up the code build project to build, create docker image and push the image to the ECR repo.
-So log into or go to your code build console
--	click on build project”
--	then you click on create build project”
+# Step four: Setup IAM role for CodeBuild **{So, CodeBuild is the guy doing the interaction, that is why, it needs the IAM Role policy, so as to make it have due permissions or flexibility to interact with other Services.}***
+- Here, we are going to create a policy that will be used by CodeBuild to interact with other AWS services as part of the CICD Pipeline.
+- So, go to IAM console.
+- And before we go to create an IAM role 1st we need to create a policy.
+-	Therefore under IAM , click on “Policies”
+-	Then click on “create policy”
+-	Now, on the create policy page, you will see two petit sections: [**visual editor**] and [**Json.**]
+-	Click to select “**Json**” on clear all the existing script in there
+-	Now, replace our custom policy in this editor under Json with the policy you find in this link.: https://github.com/Kenneth-lekeanyi/ecs-demo/blob/master/help/iam-policy-ecs-demo-codebuild.json
+- So, copy this policy here in this link and take it to the create policy page under Json.
+- paste the policy there.
+-	Click now on “next: Tags”
+-	Then click on "Review"
+-	Review policy
+  - Name: **iam-policy-ecs-demo-codebuild**
+  - Description: **IAM policy used for CodeBuild to interact with other AWS services as part of the ECS-demo**
+  - Now, click on "create policy"
+- Policy IAM has been created
+-As we are done with the policy, the next step is to create a role, so that we can attach this policy to a rule
+
+- # Now, create an IAM role and attaches policy for that role, so that ColdBuild can utilize the attach role and policy permission.
+- So, go again to IAM console.
+-	Click on "Roles"
+-	click again on "create role”
+-	select [trusted entity type]
+  - select [AWS services]
+  - use cases for other AWS services; In the box, type [**CodeBuild**]
+  - Click to check the box on "CodeBuild"
+  - Then, click on “next”
+-	Add permission
+  - Search on the search bar for the policy that we created with the name as **iam-policy-ecs-demo-codebuild**
+-	click on “next”
+-	Review
+-	Role details
+  - Role name: **iam-role-ecs-cicd-demo-codebuild**
+  - Description: **Allows CodeBuild to call AWS services on your behalf**
+-	click now on “create role”
+- With the above steps we're done setting up the required role for the code build service.
+- The next step will be to set up CodeBuild
+
+# Step five: Setup CodeBuild project
+- Now, we are going to set up the CodeBuild project to build, create Docker image and push the image to the ECR repo.
+- So, log into or go to your CodeBuild console
+-	click on "Build projects”
+-	then you click on "create build project”
 -	project configuration
-project name: ecs-cicd-demo-codebuild
-descripcion: codebuild project to build the ECS demo application and push image to the ECR repo.
--	Source
-Source provider
-•	AWS Codecommit
-•	ECS-cicd-demo-repo
--	Reference type
-Branch
--	Branch
-Master
+  - project name: **ecs-cicd-demo-codebuild**
+  - Descripcion: **Codebuild project to build the ECS demo Application and push image to the ECR repo.**
+-	Source:
+ - Source provider:
+  - **AWS Codecommit**
+  - **ECS-cicd-demo-repo**
+-	Reference type:
+  - Select [Branch]
+-	Branch:
+  - Use the drop down to select [**Master**]
 -	Environment
--	Environment image
-Select this section in “ managed image”
--	Operatinf system 
-Amazon linux2
--	Runtime
-Standard
--	Image
-Aws/codebuild/amazonlinux2-x86-64-standard:3.0
--	Image version
-Always use the latest image for this runtime version
--	Environment type
-Linux
--	Priviledge
-Enable this flag if you want to build Docker image or want your builds to get elevated priviledges.
--	Service role
-Click to select O “ existing service role”
--	Role ARN
-Q arn:aws;iam::46599248654:role-ecs-demo-codebuild x
-Allow AWS codebuild to modify this services role so it can be used with this build project.
-If you want to choose a VPC that you want your cold build to access you can do that under additional configuration
-And in the same light if you want your computer power to have a certain GB of memory and a certain VCPU, You can also choose that under additional configuration.
-But this demo is not doing anything under additional configuration so go to Buildspec. But let's free environment variable under add C.
-Click on additional configuration”
-then you Scroll down to locate environment variable
--	environment variables
-name                           value                                                                                    type
-repository URI       464599248654.dkr.ecr.us-east-1.amazon….      plaintext
-Buildspec
--	Build specifications
-use a build spec file
--	build spec name
-build spec.yml
--	cloud watch
-cloud watch locks
--	click on create build project”
-with the above steps completed we cannot see that the new code build project has been created.
-Explanation here
-not that you're file name to be used in bluild spec could be anything. But with a yml extension. In these our application we are using buildspec.yml
-study this buildspec.yml file at this link
+  - Environment image
+   - Select this section on [managed image]
+-	Operatinf system:
+  - Select [Amazon linux2]
+-	Runtime:
+  - Standard
+-	Image:
+  - Select [Aws/codebuild/amazonlinux2-x86_64-standard: 3.0]
+-	Image version:
+  - Select [Always use the latest image for this runtime version]
+-	Environment type:
+  - Select [Linux]
+-	Priviledge:
+  - Check the box on [Enable this flag if you want to build Docker image or want your builds to get elevated priviledges.]
+-	Service role:
+  - Click to select “[existing service role]”
+-	Role ARN: Here search for the full name of the IAM CodeBuild Role that we created "**iam-role-ecs-cicd-demo-codebuild**". When you search and enter it, its ARN will appear in the box as shown below.  OR you can go to the ECR Console and copy the URL of this ecs-demo-cicd-repo directly and paste it in this box.
+  - in this [arn:aws;iam::46599248654:role-ecs-demo-codebuild]
+  - ***{As you can see here, by default CodeBuild has a default role which you met inside here. Just as thesame as CodePipeline and CodeCommit, they all have default Roles. But as compared to CodePipeline and codeCommit, their default Role is sufficient, thats why we did not create any additional role there. But concerning CodeBuild, its own default Role is not sufficient simply because it is doing so much work. That is the reason why we are removing it default Role and selecting or attaching our own created custom role to this CodeBuild}.***
+- Check this box on [Allow AWS CodeBuild to modify this service role so it can be used with this build project].
+- If you want to choose a VPC that you want your CodeBuild to access it, you can do that under additional configuration
+- And in the same light if you want your compute power to have a certain **GB of memory** and a certain **VCPU**, You can also choose that under additional configuration.
+- But this demo is not doing anything under additional configuration so go to Buildspec. But let's See environment variable under add C.
+- Click on "Additional Configuration”
+- then you Scroll down to locate Environment Variable
+-	Environment Variables:
+  - Name:**REPOSITORY_URI**     - value: **464599248654.dkr.ecr.us-east-1.amazon….**       - Type: **Plaintext** ***{you get this value from the ECR Repo URI. Go to the ECR Console, locate the ecs-demo-cicd-repo, you will see this value as it URI. copy it and paste it here.}***                                                           
+- **Buildspec:**
+-	Build specifications:
+   - Select [**Use a buildspec file**]. This as opposed to "insert build" command, so that we can keep a version of the buildspec file. If we use "Insert build" command, you will not be able to keep a version of the command you use.
+-	buildspec name:
+  - buildspec.yml
+-	CloudWatch
+  - Check the box on [CloudWatch logs]
+  - click on "create build project”
+- With the above steps completed we can now see that the new CodeBuild project has been created.
+- 
+- Note that, you're file name to be used in bluildspec could be anything. But with a yml extension. In these our Application we are using buildspec.yml
+- study this buildspec.yml file at this link
 https://github.com/cvamsikrishna11/ecs-demo/blob/master/buildspec.yml
-after successfully creating they build or cold build project, let's proceed at this time to start the build.
--	So click on “start build”
-you will then see that they build has been initiated immediately
-once the build has started and completed successfully, we can see the build status and success message
-then we can now go to the ECR repo and you will see the created docker image there having the latest version.
--	You will see a blank bar saying ‘showing the last 1000 lines of the build log. View entire log
-if you click on this view entire log it would directly take you to the cloud watch by group if you take open link in a new tab”
-(it is that role that facilitate the locks to be pushed to cloud watch)
-from the image we are seeing in the ECR repo, we notice that we just only created the repository and everything is being pushed to this repository automatically.
-Step six: set up code pipeline to orchestrate the stages
+- After successfully creating the build or ColdBuild project, let's proceed at this time to start the build.
+- 
+-	So click on “**start build**”
+- you will then see that the build has been initiated immediately
+- Once the build has started and completed successfully, we can see the build status and success message
+- then we can now go to the ECR repo and you will see the created Docker image there having the latest version.
+-	You will also see a black bar saying ‘**showing the last 1000 lines of the build log. [View entire log]**
+- if you click on this [view entire log], it would directly take you to the CloudWatch log by group. if you take open link in a new tab”
+- (it is that role that facilitate the logs to be pushed to CloudWatch)
+- From the image we are seeing in the ECR repo, we notice that we just only created the repository and everything is being pushed to this repository automatically.
+- Note that, CodeBuild does not really charge that much. It only vharge us depending on the **number of innovations and the number of runtime.
+
+- 
+# Step six: set up code pipeline to orchestrate the stages
 Note: 
 1)	this section (code pipeline) has a despondency to create the VPC stack.
 We have already said our VPC using IAC in this link
