@@ -1376,7 +1376,7 @@ https://github.com/cvamsikrishna11/ecs-demo/blob/master/buildspec.yml
 - Note that, CodeBuild does not really charge that much. It only vharge us depending on the **number of innovations and the number of runtime.
 
 - 
-# Step six: set up code pipeline to orchestrate the stages
+# Step six: Setup CodePipeline to orchestrate the stages
 Note: 
 1)	this section (code pipeline) has a despondency to create the VPC stack.
 We have already said our VPC using IAC in this link
