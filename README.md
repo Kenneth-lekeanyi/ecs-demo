@@ -1492,47 +1492,48 @@ f)	On the Task definition page, go to the "New Revision” and go to the contain
 We can see that both the container definition and the ECR image have the same tags, by which we can understand the CI/CD pipeline is automatically updating the ECS Container definition to place the latest docker image.
 g)	And lastly, if we access the **ecs-demo-cluster** and go to **ecs-demo-service** and then go to “Events”, we can see all the events that are happening in that cluster related to deployements: scale-in, scale-out etc
 - 
-# Now,Lets inject some changes into the Application Code and see what happens at the level of the Application UI after pasting our LB.URL
+# Now,Lets Inject Some Changes Into The Application Code And See What Happens At The Level Of The Application UI After Pasting Our LB URL On The Browser.
 - So, we are going to inject some changes and then we push it to the pipeline.
 - To introduce this change,
-open the VS code (which we are using to interact with the code commite). Then on your VS code, open the application base code (ECS-CICD-DEMO-REPO) Where you have all your files in there.
+- Open the VS code (which we are using to interact with the CodeCommite). Then on your VS code, open the application base code (**ECS-CICD-DEMO-REPO**) Where you have all your files in there.
 -	Now open the “app” folder
-inside this app folder, we have the index.html. (This indexhtml is whatever that you are seeing in the user interface UI when you paste the LB on the browser).
-Inside this index.html, inject the following
-<h3> App version-1.2.0<h3>
-<h3>deployment from the codepipeline demo and we are gonna discuss rollout deployments</h3>
-•	Now bring your VS code terminal
--	Check the status by our changes by doing
-git status
--	no add the changes
-git add.
-Git add app/index.html
--	Now committe changes to your local staging area through
-git commit-m “diploying version 1.2.0”
-If you now do git status, you will see that one file has changed an it has gotten to the master branch.
--	Now push our staging area to the central repository that is code commit
-git posh
-if it's prompt that you enter the code commit credentials, then just go to the code commit credentials that you downloaded and grab them to pass them here in
--	Username
--	Password
-•	now go to the code pipeline console. You will see that the cold pipeline has been triggered (to deploying version 1.2.0)
-•	If you go to code build console and click on build project you will see the build status saying “in progress”
-•	if you go to code commit console can you click on commit, you will see the changes with just made
-•	now go to code build console to see the build log
-•	now go to the code pipeline console
--	click on pipeline
--	Scroll down to the diploy
--	then click on details. This will direct you to the details part of the deployment
--	then under deployement you will see that 
-minimum healthy person is 100
-maximum person is 200
-desired count 2 under primary are running which 
-two under active are running
-The old task have older revision while the new task have current revision
-what is happening in the roll out is that when the minimum person is 100 ,
-maximum healthy person is 200
-then they desired count has 2
-which active running is 2
+- inside this app folder, we have the **index.html**. (This indexhtml is whatever that you are seeing in the user interface UI of this Application when you paste the LB on the browser).
+- Inside this index.html, inject the following
+- <h3> App version-1.2.0<h3>
+- <h3>deployment from the codepipeline demo and we are gonna discuss rollout deployments</h3>
+- Now, bring up your VS code terminal
+-	Check the status by those changes we have just made, by doing
+- `git status`
+-	Now, add the changes to your staging area by doing
+- `git add .`**OR** `git add app/index.html`
+-	Now, committe the changes to your local staging area through
+- `git commit -m “diploying version 1.2.0”`
+- If you now do `git status`, you will see that one file has changed and it has gotten to the master branch.
+-	Now push our staging area to the central repository that is "CodCommit"
+- `git posh`
+- if it prompt that you enter the CodeCommit credentials, then just go to the CodeCommit credentials that you downloaded and grab them to pass them here in
+-	**Username:**
+-	**Password:**
+- Now, go to the CodePipeline console. You will see that the CodePipeline has been triggered (to deploying version 1.2.0)
+- If you go to CodeBuild console and click on "build project", you will see the build status saying “**in progress**”
+- if you go to CodeCommit console and you click on commit, you will see the changes we just made.
+- Now, go to CodeBuild console to see the "build log"
+- Now, go to the CodePipeline console
+  - click on "Pipeline"
+  - Scroll down to the "deploy"
+  - Then click on "details". This will direct you to the details part of the deployment
+  - Then, under "Deployement", you will see that 
+  - minimum healthy percent is **100**
+  - maximum healthy percent is **200**
+- Desired counts: **2** under primary are running while
+- **2** under **Active** are running
+- The old task have older revision while the new task have current revision
+- 
+# what is happening in the Roll-out is that when the minimum percent is 100 ,
+- maximum healthy percent is **200**
+- then they desired count has **2**
+- while Active running is **2**
+- 
 very soon the order tax will get killed and ruled out why the current number of task continue to run. When did diplomat has reached its steady state.
 That is a reason why you see desire counts as 2 why running count stance at 4. So that in few minutes it would dismantle the old tasks and maintain the current tasks. 
 So that when there is any change it will not encounter any downtime. Simply because as the old task gets rolled out, the current tasks are already running perfectly
