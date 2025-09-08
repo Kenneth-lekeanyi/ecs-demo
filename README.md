@@ -1377,121 +1377,124 @@ https://github.com/cvamsikrishna11/ecs-demo/blob/master/buildspec.yml
 
 - 
 # Step six: Setup CodePipeline to orchestrate the stages
-Note: 
-1)	this section (code pipeline) has a despondency to create the VPC stack.
-We have already said our VPC using IAC in this link
-https://github.com/cvamsikrishna11/ecs-demo/blob/master/infra/vpc-alb-ecs.yml
-2)	This section (code pipeline) also has a descendancy to create an ECS cluster, service and tax stack.
-We have already also said these dependencies using IAC in this link below
-https://github.com/cvamsikishna11/ecs-demo/blob/master/infra/fargate-service-task.yml
-In this section, the goal is to create the code pipeline to integrate all the other AWS services that are required for this ECS-DEMO-CICD PIPELINE.
-Let's start by going to the AWS code pipeline console
-1)	go to cloud formation and ensure that you still have our stock and to create our VPC stack
--	cloud formation console
--	click on stacks
--	click on create stack”
-with new resources (standard)
--	prepare templates
-template is ready
--	template source
-upload a template file
--	upload a template file
-choose file
--	ECS-demo or ecs-cicd-demo repo select any of these especially the ecs-cicd-demo-repo that we already created
--	Infra
--	VPC-alb-ecs
--	click now on open
-•	click on next”
-•	stack name: ecs-demo-vpc-ecs-alb
-•	click on next”
-•	click again on next”
-•	review
-click on “create stack”
-as you can see our stack has been created
-2)	now let's proceed to create another stack for our fargate services
-so still go to cloud formation console
--	click on stock
--	create stack
-with new resources (standard)
--	prepare template
-template is ready
--	template source
-upload a template file
--	upload a template file
-choose file
-•	select ecs-cicd-demo -repo
--	infra
--	fargate service task
--	click on open
-•	click now on next
-•	stock name: ecs-demo-fargate
-•	click on next”
-•	click again on next”
-•	review
-click on create stack”
-you can verify to see the load balancer by going to EC2 console
-let's now start with our actual work on set up the code pipeline 
-so go to the code pipeline console
--	click on create pipeline”
--	name of the pipeline: ecs-demo-cicd-codebuild
-service role
-news service rule
--	advanced settings : allow AWS codepipelines to create rule so it can
--	Artifacts store
-default location
--	encryption key
-default AWS managed key
--	click on next"
--	add source stage
-•	source provider
-AWS code pipeline
-•	repository name
-ECS-CICD-DEMO-REPO
-•	branch
-master
-•	change detection options
-Amazon cloud watch event
-•	output artifact format
-code pipeline default
-•	click on next
-•	add build stage
--	bill provider
-o	AWS code build
--	Region
-US east (N. Virginia)
--	protection name
-ecs-cicd-demo-code build
--	build type
-single build
--	click on next”
--	add diploid stage
--	diploid provider
-Amazon ECS
--	region
-US east (N Virginia)
--	cluster name
-ECS-DEMO-SERVICE
--	image definition file
-imagedefinitions.Json
--	click on next”
--	review
--	click then on create pipeline”
-with the above action, we can see that code pipeline will be created and will start the first build automatically.
-a)	An we can access the current build details by creating on the details” icon in the build stage directly below “succeeded”
-b)	go to deploy on under in progress” you will see details”. Click on such details
-once you click on this Detail” you will be directed to the concern ECS service and employment section, where we can verify the deployement process.
-So click on ecs-demo-service
--	then click on the deployments between ASC and Metrics
-c)	If you click on task, you should be able to see two extra task that has been added to the existing 2 task to make the new deployment without any issues.
-d)	After a few minutes, if everything is smooth and tasks are up and running, ECS service will delete the old task That are running and keep the newly diploid task as it is. We can see it by refreshing the same task screen after a few minutes.
-e)	Now also verify if the newly created task definition revision has the docker container image that was created as part of the CI CD pipeline and push through the ECR, so then let's click on the “task definition” as shown below
-f)	on task definition page, go through the new revision” and go to the container section on under the container image section, we should be able to see the container image URL
-so go to the ECR console, then click on the ecs-demo-cicd-repo and compare the latest image to see if the container tags are matching.
-We can see that both the container definition and the ECR image have the same tags, by which we can understand the CI CD pipeline is automatically updating the ECS Container definition to place the latest docker image.
-g)	And lastly if we access the ecs-demo-cluster and go to ecs-demo-service and then go to “events” we can see all the events that are happening in that cluster related to deployements: scale in, scale out etc
-now inject some changes into the application code and see what happens at the level of the application UI after pasting our LB.URL
-So we are going to inject some changes and then we push it to the pipeline.
-To introduce this change,
+# Note: 
+1)	This section **(CodePipeline)** has a dependency to create the VPC stack.
+- We have already setup our VPC using IAC in this link: https://github.com/Kenneth-lekeanyi/ecs-demo/blob/master/infra/vpc-alb-ecs.yml
+2)	This section **(CodePipeline)** also has a descendancy to create an ECS cluster, Service and Task stack. We have already also setup these dependencies using IAC in this link below: https://github.com/Kenneth-lekeanyi/ecs-demo/blob/master/infra/fargate-service-task.yml
+- In this section, the goal is to create the CodePipeline to integrate all the other AWS services that are required for this **ECS-DEMO-CICD PIPELINE.**
+- Let's start by going to the AWS CodePipeline console
+1)	  Go to CloudFormation and ensure that you still have our stack and to create our VPC stack;
+-	Go to the CloudFormation console and click on "stacks"
+-	click on "create stack”
+   - "with new resources (standard)"
+-	prepare templates:
+ - select [template is ready]
+-	Template source:
+ - Select [upload a template file]
+-	Upload a template file:
+ -   Click to select [choose file]
+-	**ECS-demo** or **ecs-cicd-demo** repo, select any of these especially the **ecs-cicd-demo-repo** that we already created
+  - Click on "Infra"
+  - Then click on "VPC-alb-ecs"
+  - click now on "open"
+  - click on "Next”
+  - stack name: **ecs-demo-vpc-ecs-alb**
+  - click on "next”
+  - click again on "next”
+  - Review
+  - click on “create stack”
+- As you can see our stack has been created.
+- 
+2)	Now, let's proceed to create another stack for our Fargate Services
+- So, still go to CloudFormation console
+-	click on "stack"
+-	Click now on "create stack"
+  - {with new resources (standard)}
+-	prepare template:
+  - Select [Template is ready]
+-	Template source:
+  - Click to select [Upload a template file]
+-	Upload a template file:
+  - Click to select [choose file]
+  - select "ecs-cicd-demo-repo"
+  - Click on "infra"
+  - Then click on "Fargate-service-task.yml" {we are using this template because it has the code to create Fargate and services}.
+-	click on "open"
+- click now on "Next"
+- stock name: ecs-demo-fargate
+- click on next”
+- click again on "Next”
+- Review
+- click on "create stack”
+- you can verify to see the Load Balancer by going to EC2 console.
+- 
+# Let's Now Start With Our Actual Work By Setup The CodePipeline:
+- So, go to the CodePipeline console and click on "create pipeline”
+-	name of the pipeline: **ecs-demo-cicd-CodePipeline**
+- service role
+  - Click to select "News Service role"
+-	Advanced Settings: Click to check the box on [Allow AWS codepipeline to create role so it can...]
+- Artifacts store:
+  - Click to select [Default location]
+-	Encryption key:
+  - Click to select [Default AWS managed key]
+-	click on "Next"
+-	Add source stage
+- source provider:
+  - Select [AWS CodePipeline]
+- Repository name:
+  - **ecs-cicd-demo-repo**
+- Branch:
+  - [master]
+- Change detection options:
+  - Select [Amazon CloudWatch Events]
+- Output artifact format
+  - Select [CodePipeline default]
+- click on "Next"
+- Add build stage:
+  - Click to select [Build provider]
+   - Click on [**AWS CodeBuild**]  **{Now, we are trying to integrate the CodeBuild with this CodePipeline}**
+-	Region:
+   - US-east (N. Virginia)
+-	Protection name:
+   - **ecs-cicd-demo-codebuild**
+-	Build type:
+   - Select [single build]
+-	click on "Next”
+-	Add deploy stage:
+   - Deploy provider:
+     - Select [Amazon ECS]
+-	Region:
+  - US-east (N Virginia)
+-	cluster name:
+  - **ecs-demo-cluster**
+- Service Name:
+   - **ecs-demo-service**
+-	image definition file:
+   - **imagedefinitions.json** ***{Basically, we are calling this imagedefinitions.json file that was created in the CodeBuild and put some files inside as seen in the Buildspec file. We are now bringing the file in the deployment stage. This file carries image details. So, at thew CodeBuild, while the image is pushed to the ECR, other files or Artifacts is carried and moved forward to CodeDeploy.}***
+-	click on "Next”
+-	Review
+-	click then on "create pipeline”
+- with the above action, we can see that CodePipeline will be created and will start the first build automatically.
+- 
+a)	And we can access the current build details by creating on the "details” icon in the build stage directly below “succeeded”
+b)	Go to "Deploy", and under "in progress”, you will see details”. Click on such "details"
+- Once you click on this "Detail” you will be directed to the concerned **ECS service** and **Deployment section**, where we can verify the deployement process.
+- So, click on **ecs-demo-service**
+-	then click on the **Deployments** between ASC and Metrics.
+-	If you now reload the Load balancer so many times, it will be showing the Application UI. This is because the Task are up and running fully.
+-	
+c)	If you click on **Task**, you should be able to see two extra tasks that has been added to the existing 2 Tasks to make the new deployment without any issues.
+d)	After a few minutes, if everything is smooth and Tasks are up and running, ECS Service will delete the old Task that are running and keep the newly deployed Task as it is. We can see it by refreshing the same Task screen after a few minutes.
+e)	Now, also verify if the newly created Task definition revision has the Docker Container image that was created as part of the CI/CD pipeline and push it to the ECR, so then let's click on the “**Task definition**”.
+f)	On the Task definition page, go to the "New Revision” and go to the container section, and under the container image section, we should be able to see the container image URI
+- So, go to the ECR console, then click on **ecs-demo-cicd-repo** and compare the latest image to see if the container tags are matching.
+We can see that both the container definition and the ECR image have the same tags, by which we can understand the CI/CD pipeline is automatically updating the ECS Container definition to place the latest docker image.
+g)	And lastly, if we access the **ecs-demo-cluster** and go to **ecs-demo-service** and then go to “Events”, we can see all the events that are happening in that cluster related to deployements: scale-in, scale-out etc
+- 
+# Now,Lets inject some changes into the Application Code and see what happens at the level of the Application UI after pasting our LB.URL
+- So, we are going to inject some changes and then we push it to the pipeline.
+- To introduce this change,
 open the VS code (which we are using to interact with the code commite). Then on your VS code, open the application base code (ECS-CICD-DEMO-REPO) Where you have all your files in there.
 -	Now open the “app” folder
 inside this app folder, we have the index.html. (This indexhtml is whatever that you are seeing in the user interface UI when you paste the LB on the browser).
