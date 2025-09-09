@@ -1582,6 +1582,28 @@ You simply go to CodePipeline console and
 - This is because by default, AWS ECS deployment runs on a Rollout which is Rolling update.
 - So Rolling update deployment is the default deployment in the ECS Service.
 - With this, we have completed the CI/CD demo flow with Rollout update type of deployment, and we understand what is rollout type, how to use AWS CodePipeline native integration with ECS deployments.
+- -------------> Explanation Here ------->
+- So, Rollout in simple terms is a kind of Deployment wherein, you dont deploy on all the existing Instances or on all the existing Task sets. But you will select a set of 1 or 2Tasks or instances at a given time and deploy on them one after the other. So that  whenever the first ones get at a steady stage, the previous ones will get killed, while the newly created tasks or instances continous to run.
+- Such that, if under Service, we put
+   - Desired Task at = 2,
+   - Minimum Health put at 100% ***{minimum % of Task will be maintained at 2. Meaning that, at any given point in time, we should and MUST have a minimum number of 2 Tasks or instances running.}***
+   - Maximum health put at 200% ***{This means that at any given point in time of traffic increased, we should and MUST have a maximum number of healthy task or instances of 4 running. But, while the older 2 Tasks forms the older version, the newer Tasks created will form the newer version, wherein, when the newer versions get stabilized at its steady stage, the older version will get killed, while the newer versions remain running. All happening without any downtime noticed.}***
+   - Main person behind the success of all this is thanks to the image that is stored in the ECR, that, it is using to deploy from one Task to another. So, every Task when created is grabing the new version of the Code from the ECR and its running them.
+   - 
+ 
+   - ***If it is a Web Application that we are dealing with, to attach it to a Load Balancer, we would have to open Port 80. Because Web Applications are HTTP***
+   - ***If it is a Custom Application like Backend Applications such as Nodejs, Java, Python, we shall open the port based on the requirments.txt which may be 5000, 8080 etc. But it will be mentioned in the requirements.txt file*** 
 - We shall now go to see how to set up the Blue/green deployment.
+- ----------------> Explanation Ends Here -------->
 
 # BLUE/GREEN DEPLOYMENT STRATEGY
+- Note that, you have to select your Deployment Strategy at the level of "Service creation".
+- SO, when creating Service, (you MUST have discussed and concluded on which Deployment strategy that you will use. Either Rollout or Blue/Green.
+- So, you have to integrate the Deployment Strategy at the level of "Service".
+- However, both of them have dependencies which all relies on "Service".
+- So, you can only set up Roolout if the Rollout strategy was selected at the level of Service Creation ALSO,
+- You can only set up Blue/Green if the Blue/Green strategy was selected at the level of Service Creation.
+- 
+- **THE BLUE/GREEN DEPLOYMENT**
+
+- 
