@@ -1605,5 +1605,355 @@ You simply go to CodePipeline console and
 - You can only set up Blue/Green if the Blue/Green strategy was selected at the level of Service Creation.
 - 
 - **THE BLUE/GREEN DEPLOYMENT**
+- To do the Blue/Green Deployment, 2 Files are added to the Application CodeBase. So the CodeBase now appears as follows;
+  - **ECS-CICD-DEMO-REPO**
+    - app
+      - contactus.html
+      - index.html
+    - help
+    - infra
+      - Dockerfile
+      - README.md
+      - appspec.yml **{added for the Blue/Green Deployment}***
+      - buildspec.yml
+      - taskdef.json **{added for the Blue/Green Deployment}**
+
+- remark you that, The blue-green deployment is quite confusing because it has to be done with some configuration that needs to be handled and needs to connect all pieces together.
+So if you have deleted the stack go and set them up
+so to create this stack go to cloud formation console
+you should be able to see IAm stack (ecs-demo-iam)
+Because we did not delete the IAM stack. We are going to create our VPC stack with all the resources in there.
+Cloud formation console
+-	click on create stack
+with new resources (standard)
+-	prepared templates
+template is ready
+-	template source
+upload a template file
+-	upload a template file
+choose file. Click here
+ecs-cicd-demo-repo
+infra
+vpc-alb-ecs
+-	click open now on “next”
+-	stack anme: ecs-demo-vpc-ecs-alb
+-	environment name: ecs-demo
+-	click on next
+-	click again on next
+-	review
+create stack
+We have already created our code commit which uses ECS-CICD-DEMO-REPO
+Wait until the stack is created, So that we can create the far get stack on top of it.
+•	Let's now proceed to create the next stack which is the far get stack
+-	click on create stack again
+-	with new resources (standard)
+-	prepare template
+template is ready
+-	template source
+upload a template file
+-	upload a template file
+choose a file.  Click here
+ecs-cicd-demo-repo
+infra
+fargate-service-task
+click now on open
+-	click on “next”
+-	name: ecs-demo-fargate
+-	environment name: ecs-demo
+-	click on next
+-	click again in next
+-	review
+-	click on “ create stack”
+It will take few minutes to create
+•	if you go to LB and copy the DNS name and paste it in a few browser you should be able to see the application.
+Hi there
+now you can go to code pipeline and click on the ecs-demo-cicd-codepipeline then we locate “release change” At the top right and click on it. Now using code pipeline, we have done the deployement as we did last time.
+No let's delete 2 blue greens employment
+things our application is up and running after we clicked on
+-	release change
+-	release
+our application is now up and running. So that when we do or set up or configure all the setups and connect them together, this code pipeline will then do the deployement into the blue-green setup.
+1)	Create code pipeline rule for the blue greens employment
+so let's go to your IAM console. We need to create a role
+-	click on roles
+-	click on create roles
+-	trusted entity type
+AWS service
+-	user cases
+use cases for other AWS services
+-	code deploy-ECS Click to check select on code deploy
+-	click now on next”
+-	click again on next” 
+review
+•	Role name: iam-role-ecs-demo-codedeploy
+•	Scroll down and click on create role”
+Now after creating the cold diploid role, we proceed to the next action which is to create a new listener for the blue-green deployment
+2)	create a new listener for the blue and green environment
+-	go to the EC2 console
+-	then locate the load balancers
+select our load balancer
+select the box of the load balancers that we created
+then you click on “listeners”
+-	click now on “ add listener”
+listener details
+protocol.             Port
+HTTP.                   8080
+-	Default action
+Click on “add action”
+Then you click on “ return fixed response”
+Response code
+503
+-	Click on “add” or view listener
+-	Then you clock on “new listener”
+You will be able to see the new listener that has been added.
+-	Click on add listener to add another listener
+Listener detach
+Protocol                   port
+HTTP.                            8000
+-	Default action
+Click on “add action”
+Then click on “return fixed response”
+-	Response code
+503
+-	Click again on “add”
+-	Click on “view listener”
+
+Now we have to proceed to create a new service in the existing cluster to configure blue-green deployment
+3)	create a new service in the existing cluster to configure blue-green employment.
+As per the diagram you see service at the tail end. So we are going to create that new service so that the blue greens deployment that we would set up will be diploid on top of that service.
+How do we create the news service?
+We go to our EC2 console
+If you go on the clusters and click on our ecs-demo-cluster, you will see that we have one service currently running in there. At this time. And the running taxes is 2.
+-	So click on our ecs-demo-cluster, So that you can get into our cluster
+-	click on service or if it is highlighted already that's fine.
+Click now on create”
+-	configure service
+•	launch type: FARGATE
+•	Operating system family: linux
+•	Task definition: ecs-demo-service
+•	Revision (latest)
+•	Service name: ecs-demo-service-blue-green
+•	Number of task: 2
+•	Minimum healthy percent: 100
+•	Maximum percent: 200
+•	Deployment circuit breaker: Disabled
+-	Deployments
+-	Deployments type blue/green deployment (pound by AWS codedeploy)
+•	Deployment configuration: codeDeploydefault.ECS (anatomy 10 percent
+•	Service role for code Deploy: iam-role-ecs-demo-codedeploy
+Explanation of the blue/Green deployment.
+First, when we say rollout, we are deploying to individual tasks,rather than deploying to all of them as a branch.
+One of the disadvantages of this rollout is that once you deploy, you don’t have control over them anymore.thy will deploy and destroy The old as without you having anything to do with them anymore. So if anything happens like bugs, it's not easy to roll back
+but in a blue-green what we are going to do is that we are going to create a replicate. Some replica when we do the blue-green, it would create a replica of the same or exactly some replica of V code now called V;2 or version 2.
+What will happen now is that one the deployement starts, the ALB will start routing traffic to those replicas called green T3, T4 And also will be use that  to test those new task in the green to ensure they are working fine.
+So the bunch boy 10 task that were in blue will be replicated to the green environment. And that whole bunch will start receiving traffic where the blue is running. So that if there is any problem with any of the green we just hold light there and roll back to the blue. On when we do that rollback it stops and immediately continue with the blue environment.
+If no issue then the ALB continues to route traffic to the green ontill when it reaches it steady state that green becomes just really running as a blue environment. 
+So another differences is that with the blue/green, it is quite fast because you are launching a complete replicate of the blue (prod) to the green which is after a reuse minute following your deployment configuration that you have choosen
+-	Default: all at once
+-	Linear
+-	Canary
+The whole app will be deployed to the green where as with rollout, it takes a long time to deploy from one task to another task till it reach the desired count.
+•	And if something happens (e.g a bug), you will be able to quickly rollback to blue and continue to run,rather than in rollout wre if something happens, you will not be able to rollback so easily.
+•	Again, after routing all your traffic to the blue, AWS will provide you with 1hour buffer time to do Everything and check to see that all your deployement is making perfectly OK
+and if with in that one hour buffer time if everything is not working fine, You can just click on the bottom row back and it will revert back to the blue by ALB.
+END OF EXPLANATION.
+-	Scroll down and click on next
+-	configure network
+•	cluster VPC:
+•	Subnets
+Whatever service,tasks or desired task that will be created , we are saying and inside this subnets that we are prescribing here.
+-	Security Groups: click on “edit”
+-	Assigned security group
+Select existing security group
+-	Then select the first security group that has container on it name so it will appear as follows
+Security group ID                             Name
+Sg-o--------------                                   ecs-demo-vpc-ecs-alb-containersecurityGroup
+-	Click on “save”
+-	Auto-assign public ip: ENABLED
+-	Load balancer
+Application load balancer
+-	Container to load balancer
+Container name:ecs-demo-semicso.so
+Click on : add to load balancer
+Ecs-demo-service:so
+•	Production listener port. [create new] click here then
+Then you select 8080: HTTP
+•	Test listener
+•	Test listener paste
+Now Click here
+Then you select 8000:HTTP
+-	Addirional configuration
+•	Target group name (create new) blue green 1
+•	Path pattern.                        Evaluation order.  1
+•	Health check path
+•	Target group 2 name. (create new).  Bkue green 2
+•	Path pattern.                    Evaluation order.    1
+•	Health check path 
+-	Cliuck now on “next step”
+-	Set auto scaling
+-	Click on “next step”
+-	Review
+Click on “create service”
+So you should be able to see the branch of resources that it has creates such as
+Target group
+Target group
+Code deploy application
+At this point the only thing that is using is to setup our codebox to deploy ontop of service
+-	So open your VS code and
+-	Open up your ECS-CICD-DEMO-REPO
+-	Locate inside the ECS-CICD-DEMO-REPO folder in our V.S code and under locate taskdef.json
+ECS-CICD-DEMO-REPO
+>app
+>help
+>infra
+Appspec.yml
+Buildspec.yml
+Dockerfile
+README.md
+Taskdef.json (click here on this file)uou will see an empty file there .what we have to do is that we have to fill this task def.json, so that it will be use during the deployment to get what is fill in there.
+So go to your AWS ACC, go to ECS console, click on “task definition” at the left below cluster then select inside the task definition select our old task definition that we have benn using which is carrying the name ecs-demo-service.
+At this point, you should Be able to see all the revisions that we have under these task definitions.
+-	Now select the latest revision (which will be the first one on top)
+-	Under it you will see all that falls under this task definitions:ecs-demo-service
+-	Come under and select Json which is seated in between Builder and tags.
+-	Copy this text.select this JSON templete and text and copy it
+-	Now open your VS code and paste it inside or inside your taskdef.json
+-	Now still inside taskdef.json
+Go down to locate the keypair that deals with image as either” image”
+-	Now delete all that long value in red and in quote as the value of image and type <IMAGE1 NAME>, to appear as follows
+“image”:<IMAGE1 NAME>
+-	Then save it in the VS code and keep it to wait a bit right here
+let's now proceed to the final stage
+so open the code pipeline console
+-	then you click on pipelines at the bottom left, you will see our pipeline that we created already
+•	click on this pipeline i.e ecs-demo-cicd-codepipeline to open it
+•	now under here, click on “edit” inbetween notify and stop execution
+•	now locate edit:build on the 2nd stage and on it click on edit stage which is on the far right but inside the edit; build square box.
+•	Ypu will see a small square will pop up showing as follows
+Add action group
+
+
+
+
+Edit action
+-	Scroll down here to locate output artifacts
+Output artifacts
+So it will appear as follows
+Definition artifacts
+Image artifacts
+
+
+
+
+-	Now click on “done”
+-	Now under the edit build that return after clicking on done,
+•	Locate down again on the right still in the edit build box but right at the site right and click on “done” that appear after delete
+•	now move to edit:deploy and click on edit stage” at the right
+so another small box will appear as it did in edit build
+
+
+
+
+Edit action
+-	input artifacts
+image artifacts
+-	image definition file
+image definitions.json
+-	now click on “done”
+-	again locate “done” on the pop up page after “delete” and click on “done”
+-	now still under edit:Deploy
+click on “add action group”
+add action group
+deploy
+amazaon ECS
+add action group.        Click here
+edit action
+•	action name: deployment-blue-green
+•	action provider: Amazon ECS (BLUE/GREEN)
+•	input artifacts: Definition artifacts
+•	click on add: image artifacts
+-	AWS codedeploy application name: AppECS-ecs-demo-cluster-ecs-demo-service-blue-green
+-	AWS codedeploy deployment group: DgpECS-ecs-demo-cluster-ecs-demo-service-green
+-	Amazon ECS task definition: Definition artifacts, task def.json
+-	AWS codedeploy Appspecific: Definition Artifact.   Appspec.yml
+-	Input artifacts with image details
+Image artifacts
+-	Pace holder text in the task definition
+IMAGE1-NAME
+-	Click now on “done”
+-	Click again on “done” to come out of the edit mode
+-	Go up at the top right and click on “save”
+-	Then on “save pipeline change page, click again on “save”
+Now go to your VS code and under ECS-CICD-DEMO-REPO,
+-	Click on index.html
+-	Add something there such as
+<h3>deploying from ECS blue/green using CICD pipeline! </h3>
+<h3> app version-2.2.0</h3>
+Save it
+Then do
+Git status
+Then add it by doing
+Git add.
+Then commit it by doing
+Git commit-m “new commit for blue-green” “enter”
+Finally do
+Git push
+•	Go to codepipeline And you will see that source is already in progress
+•	just wait a bit
+Build is also in progress
+•	go down to deploy you will see it saying that “deploy in progress under deploy”
+Deploy
+amazonECS
+o in progress
+details (click here)
+Click on details so it would take you to the deployement stage. Although we have already passed this stage, you can see  details under events tasks etc.
+You will see that it has  created 4 tasks. (Click on tasks to see it) but in this minute it will destroy 2 tasks.
+ Now the total running task count is 6
+but note that our desire count is 2
+•	you can see that under deployment blue-green on the code pipeline console it says
+-	didn't run
+-	no execution yet (this is because we have not done any deployement yet).
+•	Now, Once the diploid stage in the code pipeline console get succeeded, immediately the deployement (blue-green) will start. And you will see it saying in progress if you click on details, it will directly take you to the deployment stage, Where the deployement is taking place.
+This is the interesting point
+Or
+you can go to code deploy console and click on the employment so to see the deployement status of blue-green from step 1 to Step 5. An it will show you the traffic shifting progress
+original.                               Replacement
+100%.                                          0%
+As you can see the original or old one (blue) is currently serving traffic that is why if you take the DNS of the ALB:8080, enter it will show you the application. And it will still reflect the old code. 
+While if you take that DNS of the ALB:8000 “enter” It will still show you 503 not found (green) or new one
+but when it start deploying you will hit ALB DNS:8000 enter, (green) 503 will disappear and the application starts running and showing which is application version 2.2.0 And now it will reflect the new code.
+If you now go back to code deploy you will see that, in few minutes the conary deployment will start. i.e at step 3, in progress: traffic shifting progress
+90%                                      10%
+Original.                                  Replacement
+If you keep up refreshing the page of the DNS: 8080, you will see that at one point the new version is coming and at one point it is disappearing as you consider to refresh so if we hit 90% times, it will direct you to the old version and 10% time, It will direct you to the new version. (This is what will be happening to the end users at this time)
+if you want to test the new code (i.e blue/green) go to the new browser paste the DNS of the ALB:8000
+showing you that whenever you hit DNS:8000, you will always be directed to the newly deployed code.
+This is a reason why we had earlier created 2 listeners of one having port #8080 and another one having port #8000
+So that the old one will be making as production (i.e 8080) blue why the new one 8000 will be making now as it replicates. After some time when they deployement is full and steady add replica 8000, this replica (green) will now save as production why the old one can now
+This alternative will go on for the 5 minutes (or 15 minutes if you had prescribed so) and after that full demployment will be shifted to the replica.
+How is it able to do this, go to the load balancer, click on it and access the 8080 put. You will see the THEN forward to and you will see the 
+blue 1:90 (90%)
+blueGreen 2 :10 (10%)
+Previously it was forwarding 100% traffic to the blue-green 1 target group but now it is forwarding 10% traffic to the blue-green 2 target group. After 5 minutes (our prescribed time), it will then forward 100% traffic to the blue-green 2 target group and 0% traffic to blue-green 1 target group.
+And at this time, all the end users will only be assessing the new application green or Bluegreen2 of 8000. And they won't be able to access the old one anymore.
+No Roll back 
+To ssh using PuTTY
+1)	Copy the public IP address of the instance you want to connect
+2)	Open your Putty
+Host name (or IP address)
+Type here ec2-user@paste ip here
+3)	Go to the left and click on Auth and click on Brouse
+4)	Then click on your key where it is stored
+5)	Then click open.
+It will directly connect you to the EC2 instance
+Now still on the code deploye,console, after clicking on deployments” you will see on top beside the refresh button the box or squares that appears as follows:
+Stop deployment.   Stop and roll back deployment.   Terminate original task set
+1)	If you click on terminate original tax set” it will then completely terminate the old tax set of 8080 and it will completely terminate the whole task (since if you go to our ECS cluster You will see that 4 task are using, 2 old and 2 new, Since the green has reached it steady stage, If you now like you can terminate old task set if you are certain and confirm that everything is ok under the green 8000 and so the blue or old tasks (2) will only be consuming last unnecessaraily.
+2)	If you click on “step and roll back deployment”, it will terminate newly created task of 8000 target group and it will keep the old tasks of 8080. This is when you must have seen that something is happening with the greennof 8000 and it can not run successfully, so we simply stop that green and roll back to the blue or old task of 8080 here. This can be done within 1hour time offered by AWS
+3)	If you click on “stop deployment”
+
+So you now see the power and strength of Blue/Green Deployment.
+
+
 
 - 
