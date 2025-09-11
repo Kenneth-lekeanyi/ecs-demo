@@ -1618,108 +1618,116 @@ You simply go to CodePipeline console and
       - buildspec.yml
       - taskdef.json **{added for the Blue/Green Deployment}**
 
-- remark you that, The blue-green deployment is quite confusing because it has to be done with some configuration that needs to be handled and needs to connect all pieces together.
-So if you have deleted the stack go and set them up
-so to create this stack go to cloud formation console
-you should be able to see IAm stack (ecs-demo-iam)
-Because we did not delete the IAM stack. We are going to create our VPC stack with all the resources in there.
-Cloud formation console
--	click on create stack
-with new resources (standard)
--	prepared templates
-template is ready
--	template source
-upload a template file
--	upload a template file
-choose file. Click here
-ecs-cicd-demo-repo
-infra
-vpc-alb-ecs
--	click open now on “next”
--	stack anme: ecs-demo-vpc-ecs-alb
--	environment name: ecs-demo
--	click on next
--	click again on next
--	review
-create stack
-We have already created our code commit which uses ECS-CICD-DEMO-REPO
-Wait until the stack is created, So that we can create the far get stack on top of it.
-•	Let's now proceed to create the next stack which is the far get stack
--	click on create stack again
--	with new resources (standard)
--	prepare template
-template is ready
--	template source
-upload a template file
--	upload a template file
-choose a file.  Click here
-ecs-cicd-demo-repo
-infra
-fargate-service-task
-click now on open
+- Remark you that, the blue/green deployment is quite confusing because it has to be done with some configuration that needs to be handled and needs to connect all pieces together.
+- So if you have deleted the stack go and set them up
+- So, to create this stack go to CloudFormation console
+- you should be able to see IAM stack (**ecs-demo-iam**)
+- Because we did not delete the IAM stack. We are going to create our VPC stack with all the resources in there.
+- Go to the CloudFormation console
+-	click on "create stack"
+  - "with new resources (standard)"
+-	prepared templates:
+  - select "template is ready"
+-	template source:
+  - select "upload a template file"
+-	upload a template file:
+  - click on [choose file]. Click here
+- Click now on "**ecs-cicd-demo-repo**"
+- Click now on "infra"
+- Then you click on **"vpc-alb-ecs"**
+-	click on "open"
+-	Now, click on “next”
+-	stack anme: **ecs-demo-vpc-ecs-alb**
+-	environment name: **ecs-demo**
+-	click on "next"
+-	click again on "next"
+-	Review
+- Click now on "create stack"
+- 
+- # We have already created our CodeCommit which was "ECS-CICD-DEMO-REPO"
+- Wait until the stack is created, So that we can create the Fargate stack ontop of it.
+- 
+- # Let's now proceed to create the next stack which is the Fargate stack.
+- Go again to the CloudFormation console
+-	click on "create stack" again
+  - [with new resources (standard)]
+-	prepare template:
+  - select "template is ready"
+-	template source:
+  - select "upload a template file"
+-	upload a template file:
+  - click to select [choose a file].  Click here
+- Click now on "**ecs-cicd-demo-repo**"
+- Clcik on "infra"
+- Click on "**fargate-service-task**"
+- click now on "open"
 -	click on “next”
--	name: ecs-demo-fargate
--	environment name: ecs-demo
--	click on next
--	click again in next
--	review
--	click on “ create stack”
-It will take few minutes to create
-•	if you go to LB and copy the DNS name and paste it in a few browser you should be able to see the application.
-Hi there
-now you can go to code pipeline and click on the ecs-demo-cicd-codepipeline then we locate “release change” At the top right and click on it. Now using code pipeline, we have done the deployement as we did last time.
-No let's delete 2 blue greens employment
-things our application is up and running after we clicked on
--	release change
--	release
-our application is now up and running. So that when we do or set up or configure all the setups and connect them together, this code pipeline will then do the deployement into the blue-green setup.
-1)	Create code pipeline rule for the blue greens employment
-so let's go to your IAM console. We need to create a role
--	click on roles
--	click on create roles
--	trusted entity type
-AWS service
--	user cases
-use cases for other AWS services
--	code deploy-ECS Click to check select on code deploy
--	click now on next”
--	click again on next” 
-review
-•	Role name: iam-role-ecs-demo-codedeploy
-•	Scroll down and click on create role”
-Now after creating the cold diploid role, we proceed to the next action which is to create a new listener for the blue-green deployment
-2)	create a new listener for the blue and green environment
--	go to the EC2 console
--	then locate the load balancers
-select our load balancer
-select the box of the load balancers that we created
-then you click on “listeners”
--	click now on “ add listener”
-listener details
-protocol.             Port
-HTTP.                   8080
--	Default action
-Click on “add action”
-Then you click on “ return fixed response”
-Response code
-503
--	Click on “add” or view listener
--	Then you clock on “new listener”
-You will be able to see the new listener that has been added.
--	Click on add listener to add another listener
-Listener detach
-Protocol                   port
-HTTP.                            8000
--	Default action
-Click on “add action”
-Then click on “return fixed response”
--	Response code
-503
--	Click again on “add”
--	Click on “view listener”
+-	name: **ecs-demo-fargate**
+-	Here, you will see Task = 2, image=vamsichunduru.... etc
+-	EnvironmentName: **ecs-demo**
+-	click on "next"
+-	click again in "next"
+-	Review
+-	click now on “create stack”
+- It will take few minutes to create
+- if you go to LB and copy the DNS name and paste it in a new browser, you should be able to see the application.
+**Hi there**
 
-Now we have to proceed to create a new service in the existing cluster to configure blue-green deployment
-3)	create a new service in the existing cluster to configure blue-green employment.
+- Now, you can go to CodePipeline and click on the "ecs-demo-cicd-codepipeline", then we locate “**Release change**” at the top right and click on it.
+- Now, using CodePipeline, we have done the deployement as we did last time.
+- 
+- Now that our Application is up and running perfectly, let's now proceed to the Blue/Greens Deployment.
+- Since our Application is up and running after we clicked on
+-	"Release change"
+-	"Release",
+- Our Application is now up and running. So that when we do or set up or configure all the setups and connect them together, this CodePipeline will then do the deployement into the Blue/Green setup.
+- 
+# 1)	Create CodeDeploy Role for the Blue/Greens Deployment
+- So, let's go to your IAM console. We need to create an IAM Role
+-	click on "Roles"
+-	click on "create roles" ***{This role is for CodeDeploy because, CodeDeploy needs to go ontop of ECS Cluster using Service to do the deployment. So it needs sufficient permissions to go ontop of the Cluster to do the job. We did not do so for Rollout Deployment because the ECS is doing the Deployment itself internally there. But now, we are using an external tool CodeDeploy to deploy ontop of the ECS Cluster, reason why we need the Role with due permission}***
+  - select [trusted entity type]
+  - click to select "AWS service"
+-	user cases:
+ - use cases for other AWS services: [use the drop down to select **CodeDeploy**]
+-	click to check the box on "CodeDeploy-ECS" or "CodeDeploy"
+-	click now on "next”
+-	click again on "next” 
+- Review
+- Role name: "**iam-role-ecs-demo-codedeploy**"
+- Scroll down and click on "create role”
+- 
+- Now, after creating the CodeDeploy role, we proceed to the next action which is to create a new listener for the Blue/Green Environment.
+# 2)	create a new Listener for the Blue & Green Environment
+-	Go to the EC2 console
+-	Then locate "Load Balancers" at the left and click on it.
+- select the box of the load balancers that we created
+- then click on “listeners” **{you will see HTTP 80 in there already. This means that HTTP is already attached to that LB with port 80 open. So, any user with HTTP request will pass through port 80 and hit this LB. So, the LB will then route the traffic to the TG which has the 2 Tasks that are in there and running. But since our intention is to create a new Service, we need to create a new Listerner.}**
+-	click now on “Add Listener”
+- Listener details
+- Protocol: **HTTP**         --- Port: **8080**
+-	Default Action:
+  - Click on “Add action”
+- Then you click on “Return fixed response”
+- Response code: **[503]**
+-	Click on “Add” or "view listener"
+-	Then you click on the New Listener that has just been created.
+- You will be able to see the new listener that has been added. **{what it does is that, if somebody access port 8080, it will return a response "503".
+- 
+-	Click on "Add listener" to add another listener
+- Listener details
+- Protocol: **HTTP**             ---- Port: **8000**
+-	Default action
+  - Click on “Add action”
+  - Then click on “Return fixed response”
+  - Response code: **[503]**
+-	Click again on “Add”
+-	Click on “view listener”
+-	***{Now, with these Listerners;, whenever someone access port 80 of HTTP, it will send that request to the Target Group ecs-Dummy-FBDSANR26OIC. What will now happen if a user access Port 8000 & 8080 of HTTP? it will return a 503 response (saying that "this page isn't working". This is so because we have not yet configure anything yet." After some time, we shall map our Blue/Green deployment here, so that when someone hit these Ports, he will be directed to our Blue/Green Deployment. That is the reason why we created these 2 Listerners here}***
+
+- Now, we have to proceed to create a new "Service" in the existing cluster to configure Blue/Green Deployment.
+- 
+# 3)	Create a new Service in the existing Cluster to configure Blue/Green Deployment.
 As per the diagram you see service at the tail end. So we are going to create that new service so that the blue greens deployment that we would set up will be diploid on top of that service.
 How do we create the news service?
 We go to our EC2 console
