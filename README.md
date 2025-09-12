@@ -1798,7 +1798,7 @@ You simply go to CodePipeline console and
   - Health check path: [**/**]
   - 
   - Target group 2 name: **[create new]** ----- **[Bluegreen 2]**
-  - Path pattern: [**/**]---- Evaluation order: [**1**]    1
+  - Path pattern: [**/**]---- Evaluation order: [**1**]    
   - Health check path: [**/**]
 -	Cliuck now on “next step”
 -	Set Auto Scaling:
