@@ -1810,52 +1810,75 @@ You simply go to CodePipeline console and
   - Target group
   - Code Deploy Application
   - 
-At this point the only thing that is using is to setup our codebox to deploy ontop of service
--	So open your VS code and
--	Open up your ECS-CICD-DEMO-REPO
--	Locate inside the ECS-CICD-DEMO-REPO folder in our V.S code and under locate taskdef.json
-ECS-CICD-DEMO-REPO
+# --------> Explanation ----> 
+- This here is what we have done.
+- (1) **Stacks** --------------> Infra ***{so that, ontop of infra, we can deploy the stuff}***
+- (2) **CodePipeline** ----------> ***{We just invoke the old CodePipeline to deploy}***
+- (3) **CodeDeploy IAM*** ---------> ***{We now attach the role to our Blue/Green}***
+- (4) **New Service** ---------------> ***{Blue/Green}*** ------> [Listerner Target] ***{in the Blue/Green, we have created some kind of Listerners and Target Group}*** {wherein, Service has also created another Service called **CodeDeploy Application**
+- This is how to access the Application at this time. But that traffic will pass through TG. like this: ALB:80/8080 -----> TG -------> [T2], [T2]
+- # ---------> End of Explanation ------->
+- 
+- At this point the only thing that is missing is to setup our CodeBase to deploy ontop of Service
+-	So open your V.S code and
+-	Open up your **ECS-CICD-DEMO-REPO** Folder
+-	Locate inside the ECS-CICD-DEMO-REPO folder in our V.S code and under that, locate **taskdef.json**
+- **ECS-CICD-DEMO-REPO**
 >app
 >help
 >infra
-Appspec.yml
-Buildspec.yml
-Dockerfile
-README.md
-Taskdef.json (click here on this file)uou will see an empty file there .what we have to do is that we have to fill this task def.json, so that it will be use during the deployment to get what is fill in there.
-So go to your AWS ACC, go to ECS console, click on “task definition” at the left below cluster then select inside the task definition select our old task definition that we have benn using which is carrying the name ecs-demo-service.
-At this point, you should Be able to see all the revisions that we have under these task definitions.
--	Now select the latest revision (which will be the first one on top)
--	Under it you will see all that falls under this task definitions:ecs-demo-service
--	Come under and select Json which is seated in between Builder and tags.
--	Copy this text.select this JSON templete and text and copy it
--	Now open your VS code and paste it inside or inside your taskdef.json
--	Now still inside taskdef.json
-Go down to locate the keypair that deals with image as either” image”
+- appspec.yml
+- buildspec.yml
+- Dockerfile
+- README.md
+- Taskdef.json **{click here on this "Taskdef.json" you will see an empty file there. what we have to do is that, we have to fill this Taskdef.json, so that it will be use during the deployment to get what to fill in there}***.
+
+- So, go to your AWS ACC, go to ECS console, click on “task definition” at the left below cluster.
+- Then select inside this Task definition select our old Task definition that we have benn using which is carrying the name **ecs-demo-service.**
+- At this point, you should Be able to see all the revisions that we have under these Task definitions.
+-	Now, select the latest revision (which will be the first one on top)
+-	Under it, you will see all that falls under this task definitions: **ecs-demo-service**
+-	Come under and select **"Json"** which is seated in between Builder and Tags. {You will now see a long json template}
+-	Copy this text. {select this JSON templete or text and copy it}
+-	
+-	Now open your V.S code and paste it inside or inside your taskdef.json
+-	Now still inside taskdef.json,
+  - Go down to locate the keypair that deals with image as follows
+  - **"image": "-----------------------very long"** Delete all this thing.
 -	Now delete all that long value in red and in quote as the value of image and type <IMAGE1 NAME>, to appear as follows
-“image”:<IMAGE1 NAME>
--	Then save it in the VS code and keep it to wait a bit right here
-let's now proceed to the final stage
-so open the code pipeline console
--	then you click on pipelines at the bottom left, you will see our pipeline that we created already
-•	click on this pipeline i.e ecs-demo-cicd-codepipeline to open it
-•	now under here, click on “edit” inbetween notify and stop execution
-•	now locate edit:build on the 2nd stage and on it click on edit stage which is on the far right but inside the edit; build square box.
-•	Ypu will see a small square will pop up showing as follows
-Add action group
+- “image”: <IMAGE1 NAME>,
+- ***{The reason we are doing that is because, for every deployment, a new image will be created. That is the reason why we are passing a dynamic image here for it to use it for for each and every deployment, which will be passed in the Pipeline, so that instead og hardcoding the image ID, it will be replaced by the newly created image}***
+-	Then save it in the V.S code and keep it to wait a bit right here
 
+# 4) Let's now proceed to the final stage.
+- so, open the codePipeline console
+-	then you click on "Pipelines" at the bottom left, you will see our pipeline that we created already
+- click on this pipeline i.e **ecs-demo-cicd-codepipeline** to open it
+- now under here, click on “Edit” inbetween notify and stop execution
+- Now, locate "Edit:Build" on the 2nd stage and on it, click on "Edit stage" which is on the far right, but inside the Edit:Build square box.
+- Youu will see that, a small square will pop up showing as follows;
+- [+Add action group]
+- [Build
+- [AWS codeBuild ...] Click on the small square box with a bar /. click there on that Edit botton to edit this particular action group.
 
-
-
-Edit action
+- **Edit action**
 -	Scroll down here to locate output artifacts
-Output artifacts
-So it will appear as follows
-Definition artifacts
-Image artifacts
-
-
-
+- Output artifacts: [DefinitionArfifact]. ***{clear whatever you see inside this box as BuildArtifact and put the name there as "DefinitionArtifact", make sure you have no spaces between}***
+- Click on "Add".
+- [imageArtifact]
+- So it will appear as follows
+- [DefinitionArtifact]
+- [ImageArtifact]
+# - -----> Explanation here ---->
+- Why are we doing this? Remember that, if you go to CodeCommit and open the ECS-demo-repo and open Buildspec.yml, you will see that, we are trying to relate the Build stage. And since the Buildspec.yml is responsible for the build, open it. Right down this file, you will see that we are creating the Image definition.json file and imagedefinition.json. And also, we come down and created 2 outputs which are "DefinitionArtifact and ImageArtifact.
+- What do we have in our DefinitionArtifact? it is what we have just createdin Taskdef.json and kept there.
+- What do we haave in the ImageArtifact? it is the appspec.yml which although mentioned right under the Buildspec.yml file, it is built and intergrated under the main **ECS-CICD-DEMO-REPO down after infra, named as appspec.yml.
+- So, we are mentioning these Files under Output Artifact so that, remember that under Build, the Artifact consist of the Image and some Artifacts like
+  - typdef
+  - appspec.yml
+  - imagedef.json
+- So that when the deployment is put into effect, these Artifacta, consisting of BuildArtifact and Taskdef.json will be passed to the deployment stage. This is the reason why we are specifically exporting these Artifacts as oUTPUT, S0 that these Artifacts will be used by the following deployemnt stages.
+# -------->End of Explanation
 
 -	Now click on “done”
 -	Now under the edit build that return after clicking on done,
