@@ -1682,7 +1682,7 @@ You simply go to CodePipeline console and
 -	"Release",
 - Our Application is now up and running. So that when we do or set up or configure all the setups and connect them together, this CodePipeline will then do the deployement into the Blue/Green setup.
 - 
-# 1)	Create CodeDeploy Role for the Blue/Greens Deployment
+# 1)	Create CodeDeploy Role for the Blue/Greens Deployment    {Blue/Green, = No Downtime}
 - So, let's go to your IAM console. We need to create an IAM Role
 -	click on "Roles"
 -	click on "create roles" ***{This role is for CodeDeploy because, CodeDeploy needs to go ontop of ECS Cluster using Service to do the deployment. So it needs sufficient permissions to go ontop of the Cluster to do the job. We did not do so for Rollout Deployment because the ECS is doing the Deployment itself internally there. But now, we are using an external tool CodeDeploy to deploy ontop of the ECS Cluster, reason why we need the Role with due permission}***
@@ -1728,84 +1728,88 @@ You simply go to CodePipeline console and
 - Now, we have to proceed to create a new "Service" in the existing cluster to configure Blue/Green Deployment.
 - 
 # 3)	Create a new Service in the existing Cluster to configure Blue/Green Deployment.
-As per the diagram you see service at the tail end. So we are going to create that new service so that the blue greens deployment that we would set up will be diploid on top of that service.
-How do we create the news service?
-We go to our EC2 console
-If you go on the clusters and click on our ecs-demo-cluster, you will see that we have one service currently running in there. At this time. And the running taxes is 2.
--	So click on our ecs-demo-cluster, So that you can get into our cluster
--	click on service or if it is highlighted already that's fine.
-Click now on create”
--	configure service
-•	launch type: FARGATE
-•	Operating system family: linux
-•	Task definition: ecs-demo-service
-•	Revision (latest)
-•	Service name: ecs-demo-service-blue-green
-•	Number of task: 2
-•	Minimum healthy percent: 100
-•	Maximum percent: 200
-•	Deployment circuit breaker: Disabled
--	Deployments
--	Deployments type blue/green deployment (pound by AWS codedeploy)
-•	Deployment configuration: codeDeploydefault.ECS (anatomy 10 percent
-•	Service role for code Deploy: iam-role-ecs-demo-codedeploy
-Explanation of the blue/Green deployment.
-First, when we say rollout, we are deploying to individual tasks,rather than deploying to all of them as a branch.
-One of the disadvantages of this rollout is that once you deploy, you don’t have control over them anymore.thy will deploy and destroy The old as without you having anything to do with them anymore. So if anything happens like bugs, it's not easy to roll back
-but in a blue-green what we are going to do is that we are going to create a replicate. Some replica when we do the blue-green, it would create a replica of the same or exactly some replica of V code now called V;2 or version 2.
-What will happen now is that one the deployement starts, the ALB will start routing traffic to those replicas called green T3, T4 And also will be use that  to test those new task in the green to ensure they are working fine.
-So the bunch boy 10 task that were in blue will be replicated to the green environment. And that whole bunch will start receiving traffic where the blue is running. So that if there is any problem with any of the green we just hold light there and roll back to the blue. On when we do that rollback it stops and immediately continue with the blue environment.
-If no issue then the ALB continues to route traffic to the green ontill when it reaches it steady state that green becomes just really running as a blue environment. 
-So another differences is that with the blue/green, it is quite fast because you are launching a complete replicate of the blue (prod) to the green which is after a reuse minute following your deployment configuration that you have choosen
--	Default: all at once
--	Linear
--	Canary
-The whole app will be deployed to the green where as with rollout, it takes a long time to deploy from one task to another task till it reach the desired count.
-•	And if something happens (e.g a bug), you will be able to quickly rollback to blue and continue to run,rather than in rollout wre if something happens, you will not be able to rollback so easily.
-•	Again, after routing all your traffic to the blue, AWS will provide you with 1hour buffer time to do Everything and check to see that all your deployement is making perfectly OK
-and if with in that one hour buffer time if everything is not working fine, You can just click on the bottom row back and it will revert back to the blue by ALB.
-END OF EXPLANATION.
--	Scroll down and click on next
--	configure network
-•	cluster VPC:
-•	Subnets
-Whatever service,tasks or desired task that will be created , we are saying and inside this subnets that we are prescribing here.
--	Security Groups: click on “edit”
--	Assigned security group
-Select existing security group
--	Then select the first security group that has container on it name so it will appear as follows
-Security group ID                             Name
-Sg-o--------------                                   ecs-demo-vpc-ecs-alb-containersecurityGroup
+- As per the diagram you see Service at the tail end. So we are going to create that new Service so that the Blue/Greens deployment that we would setup will be deployed on top of that Service.
+- ***{How do we create the news Service?**  ***{if you click on the Service that is already existing in there and open it in a new tap, you willl only see those "Max %" and "Min %", You will never see the place to that prompt you to choose either the Rollout or Blue/Green Deployment. But if we click on "Create" under our Service, we shall see where to choose the type, either "Rollout" or "Blue/Green" Deployment. This tells us that, you only choose and setup the Deployment type only when creating Service. And because we cannot see and select it, that is why we are going to create a new "Service" to station at the tail end, so as to host our Blue/Green deployment. We did only the Rollout Deployment type becuase the Rollout Deployment type comes by default. So, we have to create the Blue/Green separately and attach to it. So, if you want to use "Terraform", or "CloudFormation" to create infrastructure, and you want to create Blue/Green, you must mention that "Deployment type is Blue/Green".}***
+- We go to our "EC2 console"
+- If you go under clusters and click on our **ecs-demo-cluster**, you will see that we have one Service currently running in there at this time. And the running tasks is 2.
+-	So click on our **ecs-demo-cluster**, So that you can get into our cluster
+-	click on "Service" or if it is highlighted already that's fine.
+- Click now on "create”
+-	configure service:
+  - launch type: Select "FARGATE"
+  - Operating system family: "linux"
+  - Task definition: "ecs-demo-service"
+  - Revision: 2001 or select "latest"
+  - Service name: "ecs-demo-service-blue-green"
+  - Number of task: **2**
+  - Minimum healthy percent: **100**
+  - Maximum percent: **200**
+  - Deployment circuit breaker: "Disabled"
+  - Deployments:
+   - Deployments type: Blue/Green deployment (powered by AWS CodeDeploy)
+   - Deployment configuration: "CodeDeployDefault.ECScanary 10percent 15 minutes"
+   - Service role for CodeDeploy: **iam-role-ecs-demo-codedeploy**
+   - 
+# ------> Explanation of Blue/Green Deployment. ------>
+- Note that, the overall difference between Rollout & Blue/Green lies on the Rollback mechanism.
+- 
+- First, when we say Rollout, we are deploying to individual tasks,rather than deploying to all of them as a bunch.
+- One of the disadvantages of this Rollout is that **once you deploy, you don’t have control over them anymore**. **They will deploy and destroy the old ones without you having anything to do with them anymore. So if anything happens like bugs, it's not easy to roll back.**
+- 
+- But in the Blue/Green, what we are going to do is that we are going to create a replica. Some replica. i.e, when we do the Blue/Green, it would create a replica of the same or exactly same replica of the code now called V:2 or version 2.
+- What will happen now is that, once the deployement starts, the ALB will start routing traffic to those replicas called "Green T3, T4". And also we will use that to test those new task in the Green to ensure that they are working fine.
+- So, the bunch say 10 Tasks that were in Blue will be replicated to the Green environment. And that whole bunch will start receiving traffic while the Blue is running. So that if there is any problem with any of the Green, we just halt right there and roll back to the Blue. And Once when we do that rollback it stops and immediately continue with the Blue environment.
+- If no issue, then the ALB continues to route traffic to the Green untill when it reaches it steady-state, that Green becomes just fully running as a Blue environment, with zero downtime.
+- So, another difference is that, with the Blue/Green, it is quite fast because you are launching a complete replica of the Blue (Prod) to the Green which is after a few minute following your deployment configuration that you have choosen
+  - Default: ***"all at once"***
+  - Linear: ***{"90%B - 10%G", "70%B - 30%G", "60%B - 40%G", after 1 or 3 minutes gradually}***
+  - Canary: ***{2 steps of 90% -> 10% after 5 minutes, 0% -> 100% after 15 minutes}***
+- The whole Application will be deployed to the Green whereas with Rollout, it takes a long time to deploy from one task to another task till it reaches the desired count.
+- And if something happens (e.g a bug), you will be able to quickly rollback to the Blue and continue to run, whereas in Rollout if something happens, you will not be able to rollback so easily.
+- Again, after routing all your traffic to the Blue, AWS will provide you with 1hour buffer time to do Everything and check to see that all your deployement is working perfectly OK.
+- And if within that  1hour buffer time if everything is not working fine, You can just click on the botton "**Rollback**" and it will revert back to the Blue by ALB.
+# -------> END OF EXPLANATION.-------->
+-
+-	Scroll down and click on "Next Step"
+-	configure network:
+- cluster VPC: ***{Go to CloudFormation, open your VPC Stack that we created Fargate, go to "Output", and grap that VPC ID that we created there and bring it here. i.e ecs-demo-vpc-ecs-alb}***
+- Subnets: ***{Same for subnets. Take only the Subnet IDs of private Subnets}***
+- We are saying that, for security purposes, whenever service, Task or Desired Task that will be created, we are saying, create them inside this VPC and inside this Subnet that we are prescribing here.
+- 
+-	Security Groups: click on “Edit”
+-	Assigned security group: check the box on [Select existing security group]
+-	Then select the first Security Group that has containers on it name so it will appear as follows:
+- check this box on [Security group ID]: **sg-0...**           --> Name:  **ecs-demo-vpc-ecs-alb-ContainerSecurityGroup**
+- ***{As you can see, under in inbound rules, this security is providing as a source, another security group. This one is that of our LB, which at work, with this LB, you will now allow Port 80 or Port 443 of this LB SG, Reason why we are only allowing traffic from the LB ONLY.}***                           
 -	Click on “save”
 -	Auto-assign public ip: ENABLED
--	Load balancer
-Application load balancer
--	Container to load balancer
-Container name:ecs-demo-semicso.so
-Click on : add to load balancer
-Ecs-demo-service:so
-•	Production listener port. [create new] click here then
-Then you select 8080: HTTP
-•	Test listener
-•	Test listener paste
-Now Click here
-Then you select 8000:HTTP
--	Addirional configuration
-•	Target group name (create new) blue green 1
-•	Path pattern.                        Evaluation order.  1
-•	Health check path
-•	Target group 2 name. (create new).  Bkue green 2
-•	Path pattern.                    Evaluation order.    1
-•	Health check path 
+-	Load Balancing: Check the box on **[Application Load Balancer]**
+-	Container to load balancer:
+  - Container name: **ecs-demo-service:80**. Then Click on : **[add to load balancer]**
+- Production listener port. [create new] click here
+  - Then you select **[8080:HTTP]** {This is the first Listerner that we created in this LB, that we are going to use in the Blue/Green Environment}
+- Check this box on **[Test listener]**
+- Test listener Port: Click here on **[Create new]**
+  - Then you select **[8000:HTTP]**
+  - ***{The reason here is that, the Blue Environment traffic from the Load Balancer will route through Port 8080, while although the Green will still come through Port 8080, it will first be routing in the internal Port 8000}***
+-	Addirional configuration:
+  - Target group name: **[create new]**----**[bluegreen 1]**
+  - Path pattern: [**/**]----- Evaluation Order. [**1**]
+  - Health check path: [**/**]
+  - 
+  - Target group 2 name: **[create new]** ----- **[Bluegreen 2]**
+  - Path pattern: [**/**]---- Evaluation order: [**1**]    1
+  - Health check path: [**/**]
 -	Cliuck now on “next step”
--	Set auto scaling
--	Click on “next step”
+-	Set Auto Scaling:
+  - Click on “next step”  {Nothing to be done here, since we already configure our Auto-scaling}
 -	Review
-Click on “create service”
-So you should be able to see the branch of resources that it has creates such as
-Target group
-Target group
-Code deploy application
+- Click on “Create Service”
+- So you should be able to see a bunch of resources that it has created such as
+  - Target group
+  - Target group
+  - Code Deploy Application
+  - 
 At this point the only thing that is using is to setup our codebox to deploy ontop of service
 -	So open your VS code and
 -	Open up your ECS-CICD-DEMO-REPO
