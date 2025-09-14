@@ -1880,114 +1880,116 @@ You simply go to CodePipeline console and
 - So that when the deployment is put into effect, these Artifacta, consisting of BuildArtifact and Taskdef.json will be passed to the deployment stage. This is the reason why we are specifically exporting these Artifacts as oUTPUT, S0 that these Artifacts will be used by the following deployemnt stages.
 # -------->End of Explanation
 
--	Now click on “done”
--	Now under the edit build that return after clicking on done,
-•	Locate down again on the right still in the edit build box but right at the site right and click on “done” that appear after delete
-•	now move to edit:deploy and click on edit stage” at the right
-so another small box will appear as it did in edit build
+-	Now click on “Done”
+-	Now under the "Edit:Build" that return after clicking on Done,
+- Locate 'Done" again on the right still in the "Edit:Build" box, but right at the site right and click on “Done” that appear after Delete
+- Now, move to **"Edit:Deploy"** and click on "Edit stage” at the right.
+- So another small box will appear as it did in Edit:Build
+- [+Add action group]
+- [Deploy]
+- [Amazon ECS]: Click on this small square inside this box of edit botton to edit this action group.
+- **Edit action**
+  - Input artifcats: use the drop down to select **InageArtifact**    {Basically, all the values are now being passed from Build to deploy}
+- **Imagedefinitions.json: **Imagedefinitions.json**
+- Now, click on "Done"
+- Again, locate "Done" on the pop up page after "Delete" and click on "Done"
+- Now, still under **"Edit:Deploy"**
+- click on "+Add action group"
+- [+Add action group]
+- [Deploy]
+- [Amazon ECS]
+- [Click here on [+Add action group]"
+- **Edit action**
+  - Action name: **Deployment-blue-green**
+  - Action provider: **Amazon ECS (Blue/Green)**
+  - input artifacts: **DefinitionArtificat**
+    - Click on "Add" **ImageArtifact**
+- AWS CodeDeploy application name: **AppECS-ecs-demo-cluster-ecs-demo-service-blue-green**
+- AWS CodeDeploy deployment group: **DgpECS-ecs-demo-cluster-ecs-demo-service-green**
+- Amazon ECS task definition: **[DefinitionArtifact]** ---- **[taskdef.json]**
+- AWS CodeDeploy AppSpecifile: **[DefinitionArtifact]** ---- **[appspec.yml]**
+- Input artifact with image details: Use the drop down to select "ImageArtifact"
+- Placeholder text in the task definition: **IMAGE1_NAME**
+- Click now on "Done"
+- Click again on "Done" to come out of the edit mode.
+- Go up at the top right and click on "Save"
+- Then on the "Save Pipeline changes" page click on "Save".
+- 
 
+- Now, go to your V.S Code and under ECS-CICD-DEMO-REPO,
+  - Click on "Index.html"
+  - Add something there such as this below;
+  - <h3>Deploying from ECS Blue/Green using CICD Pipeline!</h3>
+  >h3> App version-2.2.0 </h3>
+  - Save it
+- **{With this, we are assuming that some Developer has changed something and put some new features for us to Deploy}**
+- 
+- Then do;
+- `git status`
+  - {You will see that we have modified 2 Files: Modified---> app/index.html, and Modified: taskdef.json}
+- Then add it by doing `git add .`
+- Then commit it by doing `git commit -m “new commit for blue-green”
+- Finally do `git push`
+  - This will push all the changes from our local git or staging area into our CodeCommit repository.
 
+- Go to CodePipeline and you will see that **source** is already in progress
+  - Just wait a bit
+- Build is also in progress {If you want to verify the build logs, click on details}
+- Go down to **Deploy** you will see it saying that **"Deploy in progress under Deploy”**
+- **Deploy**
+ - amazonECS
+ - in progress
+- Details: (click here on Details)
+- Click on details, so it would take you to the deployement stage. Although we have already passed this stage, you can see  details under "Events, Tasks etc.
+- You will see that it has created 4 Tasks. (Click on tasks to see it)
+- But in this minute, it will destroy 2 tasks.
+- Now, the total running task count is 6
+- But note that our desire count is 2
+- you can see that under **Deployment-(Blue/green)** on the CodePipeline console it says
+-	"Didn't run, no execution yet". ***{this is because we have not done any deployement yet}***
+-	
+- Now, Once the **Deploy** stage in the CodePipeline console get succeeded, immediately the **Deployement (Blue/Green)** will start. And you will see it saying "in progress"
+- If you click on "Details", it will directly take you to the Deployment stage, Where the deployement is taking place.
+# -------> This is the interesting point ------->
+**OR**
+- You can go to CodeDeploy console and click on the "Deployment" so as to see the "Deployement status" of Blue-Green from step 1 to Step 5.
+- And it will show you the **traffic shifting progress**
+- Original: 100% **{Original Task set serving traffic}** --------> Replacement: 0% **{Replacement Task set not serving traffic}**
+- 
+# ----> Explanation ----->
+- As you can see the original or old one (blue) is currently serving traffic. That is why if you take the DNS of the ALB:8080, to a new Browser, it will show you the Application. And it will still reflect the old code. 
+- While if you take that DNS of the ALB:8000 “enter” It will still show you 503 not found (Green) or new one
+- But, when it start deploying you will hit ALB DNS:8000 enter, (Green) 503 will disappear and the Application starts running and showing; (which is **Application version 2.2.0** And now it will reflect the new code.
+- If you now go back to CodeDeploy, you will see that in few minutes the conary deployment will start. i.e at step 3, in progress: traffic shifting progress
+    -----> [90%] ***{Original}*** --> [10%] **Replacement**
+- If you keep up refreshing the page of the DNS: 8080, you will see that at one point the new version is coming and at one point it is disappearing as you consider to refresh.
+- So, if we hit it 90 times, it will direct you to the old version and 10% time, It will direct you to the new version. ***(This is what will be happening to the end users at this time)***
+- If you want to test the new code (i.e Blue/Green), Go to a new browser and paste the DNS of the **ALB:8000**
+- showing you that whenever you hit DNS:8000, you will always be directed to the newly deployed code.
+- ***This is a reason why we had earlier created 2 Listeners of one having port #8080 and another one having port #8000***. So that the old one will be working as Production (i.e 8080) blue while the new one 8000 will be making now as it replica.
+- After some time when they deployement is full and steady at replica 8000, this replica (Green) will now save as Production while the old one can now
+- This alternation will go on for the 5 minutes (or 15 minutes if you had prescribed so) and after that full demployment will be shifted to the replica.
+- 
+- How is it able to do this,
+- Go to the Load Balancer, click on it and access the 8080 Port. You will see the THEN forward to and you will see the 
+ - Blue 1:90 (90%)
+ - BlueGreen 2:10 (10%)
+- Previously it was forwarding 100% traffic to the BlueGreen1 TargetGroup, but now, it is forwarding 10% traffic to the BlueGreen 2 Target Group.
+- After 5 minutes (our prescribed time), it will then forward 100% traffic to the BlueGreen 2 Target Group and 0% traffic to BlueGreen1 target group.
+- And at this time, all the end users will only be assessing the New Application Green or BlueGreen2 of 8000. And they won't be able to access the old one anymore.
+- 
+------> No Roll back------->
+- Now still on the CodeDeploy console, after clicking on "Deployments”, you will see on top beside the refresh button the box or squares that appears as follows:
+- **[Stop deployment]** ----> **[Stop and roll back deployment.]** ----> **[Terminate original task set]**
+- 
+# 1)	If you click on "Terminate original task set”, it will then completely terminate the old task set of 8080 and it will completely terminate the old task (since if you go to our ECS Cluster, You will see that 4 task are running, 2 old and 2 new. Since the green has reached it steady-stage, If you now like, you can terminate old task set "if you are certain and confirm that everything is ok under the green 8000" and so the Blue or old tasks (2) will only be consuming cost unnecessaraily.
+-
+# 2)	If you click on “Stop and roll back deployment”, it will terminate newly created task of 8000 Target Group and it will keep the old tasks of 8080. (This is when you must have seen that something is happening with the Green of 8000 and it can not run successfully, so we simply stop that Green and roll back to the Blue or old task of 8080 here. (This can be done within 1hour time offered by AWS)
+-
+# 3)	If you click on “stop deployment”
 
-
-Edit action
--	input artifacts
-image artifacts
--	image definition file
-image definitions.json
--	now click on “done”
--	again locate “done” on the pop up page after “delete” and click on “done”
--	now still under edit:Deploy
-click on “add action group”
-add action group
-deploy
-amazaon ECS
-add action group.        Click here
-edit action
-•	action name: deployment-blue-green
-•	action provider: Amazon ECS (BLUE/GREEN)
-•	input artifacts: Definition artifacts
-•	click on add: image artifacts
--	AWS codedeploy application name: AppECS-ecs-demo-cluster-ecs-demo-service-blue-green
--	AWS codedeploy deployment group: DgpECS-ecs-demo-cluster-ecs-demo-service-green
--	Amazon ECS task definition: Definition artifacts, task def.json
--	AWS codedeploy Appspecific: Definition Artifact.   Appspec.yml
--	Input artifacts with image details
-Image artifacts
--	Pace holder text in the task definition
-IMAGE1-NAME
--	Click now on “done”
--	Click again on “done” to come out of the edit mode
--	Go up at the top right and click on “save”
--	Then on “save pipeline change page, click again on “save”
-Now go to your VS code and under ECS-CICD-DEMO-REPO,
--	Click on index.html
--	Add something there such as
-<h3>deploying from ECS blue/green using CICD pipeline! </h3>
-<h3> app version-2.2.0</h3>
-Save it
-Then do
-Git status
-Then add it by doing
-Git add.
-Then commit it by doing
-Git commit-m “new commit for blue-green” “enter”
-Finally do
-Git push
-•	Go to codepipeline And you will see that source is already in progress
-•	just wait a bit
-Build is also in progress
-•	go down to deploy you will see it saying that “deploy in progress under deploy”
-Deploy
-amazonECS
-o in progress
-details (click here)
-Click on details so it would take you to the deployement stage. Although we have already passed this stage, you can see  details under events tasks etc.
-You will see that it has  created 4 tasks. (Click on tasks to see it) but in this minute it will destroy 2 tasks.
- Now the total running task count is 6
-but note that our desire count is 2
-•	you can see that under deployment blue-green on the code pipeline console it says
--	didn't run
--	no execution yet (this is because we have not done any deployement yet).
-•	Now, Once the diploid stage in the code pipeline console get succeeded, immediately the deployement (blue-green) will start. And you will see it saying in progress if you click on details, it will directly take you to the deployment stage, Where the deployement is taking place.
-This is the interesting point
-Or
-you can go to code deploy console and click on the employment so to see the deployement status of blue-green from step 1 to Step 5. An it will show you the traffic shifting progress
-original.                               Replacement
-100%.                                          0%
-As you can see the original or old one (blue) is currently serving traffic that is why if you take the DNS of the ALB:8080, enter it will show you the application. And it will still reflect the old code. 
-While if you take that DNS of the ALB:8000 “enter” It will still show you 503 not found (green) or new one
-but when it start deploying you will hit ALB DNS:8000 enter, (green) 503 will disappear and the application starts running and showing which is application version 2.2.0 And now it will reflect the new code.
-If you now go back to code deploy you will see that, in few minutes the conary deployment will start. i.e at step 3, in progress: traffic shifting progress
-90%                                      10%
-Original.                                  Replacement
-If you keep up refreshing the page of the DNS: 8080, you will see that at one point the new version is coming and at one point it is disappearing as you consider to refresh so if we hit 90% times, it will direct you to the old version and 10% time, It will direct you to the new version. (This is what will be happening to the end users at this time)
-if you want to test the new code (i.e blue/green) go to the new browser paste the DNS of the ALB:8000
-showing you that whenever you hit DNS:8000, you will always be directed to the newly deployed code.
-This is a reason why we had earlier created 2 listeners of one having port #8080 and another one having port #8000
-So that the old one will be making as production (i.e 8080) blue why the new one 8000 will be making now as it replicates. After some time when they deployement is full and steady add replica 8000, this replica (green) will now save as production why the old one can now
-This alternative will go on for the 5 minutes (or 15 minutes if you had prescribed so) and after that full demployment will be shifted to the replica.
-How is it able to do this, go to the load balancer, click on it and access the 8080 put. You will see the THEN forward to and you will see the 
-blue 1:90 (90%)
-blueGreen 2 :10 (10%)
-Previously it was forwarding 100% traffic to the blue-green 1 target group but now it is forwarding 10% traffic to the blue-green 2 target group. After 5 minutes (our prescribed time), it will then forward 100% traffic to the blue-green 2 target group and 0% traffic to blue-green 1 target group.
-And at this time, all the end users will only be assessing the new application green or Bluegreen2 of 8000. And they won't be able to access the old one anymore.
-No Roll back 
-To ssh using PuTTY
-1)	Copy the public IP address of the instance you want to connect
-2)	Open your Putty
-Host name (or IP address)
-Type here ec2-user@paste ip here
-3)	Go to the left and click on Auth and click on Brouse
-4)	Then click on your key where it is stored
-5)	Then click open.
-It will directly connect you to the EC2 instance
-Now still on the code deploye,console, after clicking on deployments” you will see on top beside the refresh button the box or squares that appears as follows:
-Stop deployment.   Stop and roll back deployment.   Terminate original task set
-1)	If you click on terminate original tax set” it will then completely terminate the old tax set of 8080 and it will completely terminate the whole task (since if you go to our ECS cluster You will see that 4 task are using, 2 old and 2 new, Since the green has reached it steady stage, If you now like you can terminate old task set if you are certain and confirm that everything is ok under the green 8000 and so the blue or old tasks (2) will only be consuming last unnecessaraily.
-2)	If you click on “step and roll back deployment”, it will terminate newly created task of 8000 target group and it will keep the old tasks of 8080. This is when you must have seen that something is happening with the greennof 8000 and it can not run successfully, so we simply stop that green and roll back to the blue or old task of 8080 here. This can be done within 1hour time offered by AWS
-3)	If you click on “stop deployment”
-
-So you now see the power and strength of Blue/Green Deployment.
+- So you now see the power and strength of Blue/Green Deployment.
+- Question: IF YOU HAVE A dataBase schema, will it also pass to the Blue/Green Deployment?
 
 
 
