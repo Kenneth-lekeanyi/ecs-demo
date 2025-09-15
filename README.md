@@ -1989,7 +1989,25 @@ You simply go to CodePipeline console and
 # 3)	If you click on “stop deployment”
 
 - So you now see the power and strength of Blue/Green Deployment.
-- Question: IF YOU HAVE A dataBase schema, will it also pass to the Blue/Green Deployment?
+- 
+# - Question: If you have a dataBase schema, will it also pass to the Blue/Green Deployment?
+- YES, if you have a Database schema DB, it will be attached to the Application. And since we are dealing with image, the whole image will be moved from Blue to Green as it is pushing our Docker image to the ECR Repository.
+- And after that, it is pushing the imageto the Artifact in the name of DefinitionArtifact & ImageArtifact. And all this is happening in the CodeBuild.
+- 
+# - Now, we can proceed to dismantle the Infrastructure.
+- Go to CodePipeline, click on Pipeline, click on **ecs-demo-cicd-codepipeline**.
+  - Then, click to check the box and then click on "Delete Pipeline"
+  - Still under "CodePipeline", click on Applications, then click on "AppECS-ecs-demo-cluster-service-blue-green", Then click on "Delete Application".
+  - Still here under "CodePipeline", click on "Build", click on "Build projects", click to check the box against "ecs-cicd-demo-codeBuild", then click on "Delete build project".
+- Go now to CodeCommit, click on "Repositories", then click on "ecs-cicd-demo-repo" and click on "Delete".
+- Now, go to ECS Console, click on 'Clusters' on the left, then click on the "ecs-demo-cluster", then click on this "ecs-demo-service-blue-green" that we have created manually. click on the box to check it, then click on "Delete".
+- Now, go to the EC2 Console, click on "Load Balancers" on the left, come down to "Listerners", check the box of [HTTP:8000] and that of [HTTP:8080]. these are the 2 Listerners that we created manually. So click now on "Delete".
+  - Still on this page, locate "Target Groups" on the left and click on it. We have created 2 Target groups. Check their boxes on [bluegreen1] and [bluegreen2], click now on "Actions" and then click on "Delete" to delete them.
+- Now, go to CloudFormation, click on "ecs-demo-fargate" and then you click on "Delete"
+  - Still under CloudFormation page, check the box on "ecs-demo-vpc-ecs-alb", then click on "Delete" to delete it.
+  - Still on the CloudFormation page again, you can now click on "ecs-demo-iam" to check it and then you click on "Delete" as well.
+  - 
+#  - --------> END OF THE PIPELINES ------>
 
 
 
