@@ -2008,7 +2008,3 @@ You simply go to CodePipeline console and
   - Still on the CloudFormation page again, you can now click on "ecs-demo-iam" to check it and then you click on "Delete" as well.
   - 
 #  - --------> END OF THE PIPELINES ------>
-
-
-
-- 
